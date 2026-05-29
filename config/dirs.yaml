@@ -1,3 +1,8 @@
 PDFs: F:\Books\PDFs
 PNGs: F:\Books\PNGs
 markdown: F:\Books\md
+
+for_prototyping:
+  whole_book: F:\Books\PDFs\Schopenhauer, Arthur - About Vision and Colour - RAW.pdf
+  test_page1: F:\Books\PDFs\Schopenhauer, Arthur - About Vision and Colour - RAW.pdf[41]
+  test_page2: F:\Books\PDFs\Schopenhauer, Arthur - About Vision and Colour - RAW.pdf[68]
