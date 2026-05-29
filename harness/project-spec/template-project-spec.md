@@ -1,9 +1,3 @@
-# Project Spec
-
-This file, together with the other docs under `harness/project-spec/`, is the authoritative invariant space for harnessed work in this repo.
-
-Describe the project here, not the harness. Let the harness derive planning and execution guidance from this spec instead of embedding project-specific rules in agent prompts.
-
 ## Project Thesis
 
 - What the system is:
