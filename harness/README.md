@@ -43,8 +43,8 @@ harness/
     active/
     archive/
     templates/
-    implementation-plan-template.md
-    implementation-tracker-template.md
+      implementation-plan-template.md
+      implementation-tracker-template.md
   project-spec/
     *.md
 ```
