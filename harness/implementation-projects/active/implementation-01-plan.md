@@ -2,31 +2,32 @@
 
 ## Intent
 
-Open the first active implementation bundle for a planning-only proving slice, without choosing tooling or building runtime yet.
+Carry the first active implementation bundle through proof-contract and sample-qualification planning, without choosing tooling or building runtime yet.
 
 Delivery posture: define the first honest runtime contract as local-only, CLI batch, scanned annotated pages first, chapter-contiguous reconstruction first, with PDF as ingress and an explicit PDF-to-PNG page conversion step before downstream processing.
 
 The current source shape is a scanned PDF rendered as two-page spreads from a facedown photocopier workflow. Implementation-01 records that shape as an input constraint for the proof contract without yet choosing a split, crop, or rectification strategy.
 
-Observed evidence: there is no runtime yet, the active bundle slot is empty, and the configured roots already distinguish PDF source, PNG working files, and markdown outputs.
+Observed evidence: there is no runtime yet, and the configured roots already distinguish PDF source, PNG working files, and markdown outputs.
 
-Sample identity and exact qualification remain deferred as a required seam before runtime proof, not as a blocker to opening implementation-01.
+The supplied Schopenhauer packet is now the qualified implementation-01 sample by operator-observed evidence: PDF pages 20-28 and book pages 47-61 inside the configured whole-book PDF. That closes sample qualification for planning purposes while leaving tooling choice, runtime execution, and any narrower first-run sub-range deferred.
 
 ## Admissibility Report
 
 - Invariant constraints: preserve two independent markdown terminal artifacts; preserve the four explicit stages of visual extraction, structural reconstruction, annotation interpretation, and artifact synthesis; preserve canonical non-normalization by default; preserve typed provenance and visible uncertainty; preserve local-only first proof, scanned annotated pages first, CLI batch first, and chapter-contiguous reconstruction first.
-- Task constraints: open implementation-01 now; keep sample qualification deferred but required before runtime proof; treat PDF as the input format; make PDF-to-PNG conversion explicit in the first runtime slice; do not implement runtime in this bundle-opening step.
+- Task constraints: keep implementation-01 at planning level; close the sample qualification gate truthfully from operator-observed evidence; treat PDF as the input format; make PDF-to-PNG conversion explicit in the first runtime slice; do not implement runtime or choose tooling in this seam-closing step.
 - Constraint conflicts: none at bundle opening. Future conflict exists if a tooling choice cannot satisfy local-only execution, stage inspectability, or the chapter-contiguous proving scope.
-- Allowed transformation types: create the first active plan/tracker pair; define the proof contract and staging expectations; define the future sample qualification seam; sequence the future tooling decision; record affected and non-affected surfaces.
+- Allowed transformation types: maintain the active plan/tracker pair; define the proof contract and staging expectations; convert the generic packet definition into a formal sample qualification gate using the supplied Schopenhauer pages; sequence the future tooling decision; record affected and non-affected surfaces.
 - Affected surfaces: the implementation-01 active bundle contents; the stated proving contract for the first runtime slice; the planning use of the existing PDF, PNG, and markdown root surfaces; future runtime sequencing expectations.
 - Non-affected surfaces: runtime code; tests; artifact schema detail; provider selection; storage; auth; deployment; downstream integrations; archived bundles; project-spec invariants.
 - Admissibility checks:
-  - pass: the plan keeps tooling choice deferred until after proof contract and sample-gate seams.
-  - pass: sample selection is not treated as solved.
+   - pass: the plan records the selected packet as the Schopenhauer PDF pages 20-28 and book pages 47-61 by operator-observed evidence only.
+   - pass: the plan keeps tooling choice deferred until after the proof contract and qualified sample gate exist.
   - pass: the first runtime slice explicitly includes PDF-to-PNG conversion before visual extraction.
   - pass: all four stages and both terminal artifacts remain explicit.
+   - pass: no runtime proof or stable API claim is implied by closing the sample gate.
   - pass: no provenance, uncertainty, or canonical-fidelity rule is weakened.
-- Stop conditions: stop if opening the bundle would silently amend the two-artifact contract, the four-stage model, provenance or uncertainty requirements, local-only posture, or chapter-contiguous proof scope; stop if tooling is selected before Seams 1 and 2 exist.
+- Stop conditions: stop if the seam would silently amend the two-artifact contract, the four-stage model, provenance or uncertainty requirements, local-only posture, or chapter-contiguous proof scope; stop if the sample gate wording implies runtime success, chooses tooling, locks a stable API, or invents page facts not supplied by the operator.
 
 ## Planned Seams
 
@@ -34,7 +35,7 @@ Sample identity and exact qualification remain deferred as a required seam befor
    Define the first honest runtime slice, its user-facing proof question, stage boundaries, stage evidence expectations, and terminal outputs. Record that runtime begins from PDF input and performs PDF-to-PNG conversion before visual extraction because PNG is the downstream working surface. Record the current source shape as two-page scanned spreads so later runtime work evaluates spread handling explicitly rather than assuming page-perfect single-page inputs.
 
 2. Sample qualification gate
-   Define what a qualifying proof sample must contain for honest runtime claims: scanned annotated PDF pages, chapter-contiguous coverage, representative markings, and at least one uncertainty case. Defer exact sample identity and exact qualification wording until runtime wiring is ready; require this seam to close before runtime proof claims.
+   Define what a qualifying proof sample must contain for honest runtime claims: scanned annotated PDF pages, chapter-contiguous coverage, representative markings, and at least one uncertainty case. This seam is now closed by the supplied Schopenhauer packet at PDF pages 20-28 and book pages 47-61, recorded as operator-observed evidence only. A smaller executable sub-range may still be chosen later from inside this qualified packet.
 
 3. Tooling and runtime selection
    Only after Seams 1 and 2 exist, choose local rasterization, OCR or vision, layout, and CLI wiring options against the recorded proof contract and sample gate. Keep provider choice subordinate to provenance, uncertainty visibility, stage inspectability, and local-only execution.
@@ -115,65 +116,90 @@ Acceptance probe mapping for this CLI proof:
 - Uncertainty honesty: ambiguous or degraded source cases must remain explicit in retained evidence and both markdown outputs when relevant.
 - Artifact independence: one proof run must emit two independent markdown artifacts with separate roles, not one blended document.
 
-## Test Packet To Hunt Down
+## Sample Qualification Gate
 
-Primary packet to go find for the first proof run: 4 contiguous scanned spreads from one chapter, equivalent to 8 logical book pages, all from a single uninterrupted chapter slice in the source PDF.
+Purpose statement for Seam 2: fix one truthful implementation-01 sample packet before tooling or runtime selection, using operator-observed evidence only.
 
-Required roles inside that 4-spread packet:
+Gate pass criteria:
 
-- 1 spread that is mostly clean running body text with no meaningful annotation, to anchor baseline reconstruction.
-- 1 spread with at least one clear highlight or underline spanning more than a short isolated phrase, to prove annotation capture against body text.
-- 1 spread with marginalia, symbols, brackets, or another non-inline annotation shape, to force interpretation beyond plain highlighting.
-- 1 spread containing at least one honest uncertainty case such as faint marking, skew, gutter loss, bleed-through, or ambiguous chapter/layout structure, to prove visible uncertainty rather than silent repair.
+- The sample lives inside the configured Schopenhauer whole-book PDF.
+- The packet is contiguous in PDF order and book order and is recorded with exact page spans.
+- The packet covers the proof roles required by the CLI contract: clean running text, highlight or underline evidence, non-inline annotation evidence, and at least one explicit uncertainty or degradation case.
+- The packet qualification remains proof-level only: it does not count as runtime proof, extraction success, or tooling validation.
+- A smaller first executable sub-range may later be selected only from inside this qualified packet.
 
-Packet rules:
+Gate status: pass.
 
-- The 4 spreads must be contiguous in source order and belong to one chapter slice.
-- Reuse is allowed when one spread satisfies multiple roles, but the packet still has to contain all four roles across the 4 contiguous spreads.
-- The operator must record the actual numeric spread ids or logical page ids only after visually hunting the packet down in the PDF; this plan does not invent those ids.
+Gate evidence basis:
 
-Fallback if one 4-spread packet cannot satisfy every role in a single chapter-contiguous slice:
+- Qualified packet: Schopenhauer whole-book PDF, PDF pages 20-28, book pages 47-61.
+- Operator report: the packet is contiguous and contains everything previously requested for the proof sample.
+- Clean spread with no annotations: PDF page 28, book pages 60-61.
+- Clear highlights: multiple spreads inside the qualified packet.
+- Clear underlines: multiple spreads inside the qualified packet.
+- Marginalia: PDF page 20, book page 47.
+- Ambiguity case: PDF page 24, book page 54, where the top of the circle could be mistaken as underlining the line above.
+- Bleed-through case: PDF page 25, book page 56.
 
-- Packet A: 2 contiguous spreads from one chapter containing the clean-text baseline role and the highlight-or-underline role.
-- Packet B: 2 contiguous spreads from the nearest available chapter-contiguous slice containing the marginalia-or-symbol role and the uncertainty role.
+Limit of claim: this gate records sample qualification only. No runtime proof, extraction success, tooling choice, or stable API claim exists yet.
 
-Fallback constraint: the first proof should still prefer one primary packet. The fallback exists only so operator page hunting can proceed without inventing numeric ids that repo evidence cannot justify.
+## Qualified Sample Packet
+
+Selected implementation-01 packet:
+
+- Source PDF: the configured Schopenhauer whole-book PDF.
+- Packet span: PDF pages 20-28.
+- Book span: pages 47-61.
+- Qualification basis: operator-observed evidence only; no runtime execution has tested this packet yet.
+
+Coverage map inside the qualified packet:
+
+- Baseline reconstruction anchor: PDF page 28, book pages 60-61, clean spread with no annotations.
+- Highlight coverage: multiple spreads inside the qualified packet contain clear highlights.
+- Underline coverage: multiple spreads inside the qualified packet contain clear underlines.
+- Marginalia anchor: PDF page 20, book page 47.
+- Ambiguity anchor: PDF page 24, book page 54, where the top of the circle could be mistaken as underlining the line above.
+- Degradation anchor: PDF page 25, book page 56, with bleed-through.
+
+Selection note: Seam 2 fixes the outer qualified packet and its role coverage now. Seam 3 may still choose a smaller executable sub-range from inside PDF pages 20-28 and book pages 47-61 if that produces a sharper first runtime proof.
 
 ## Non-Goals
 
 - Do not select a provider or library stack yet.
 - Do not define final markdown field wording or artifact schema details yet.
-- Do not choose or process a concrete sample yet.
+- Do not execute runtime against the qualified sample yet.
 - Do not build runtime, tests, or automation in this opening step.
 - Do not relax canonical fidelity with semantic normalization or hidden repair.
 
 ## Acceptance Criteria
 
-- The bundle opening records the first proving contract as local-only, CLI batch, scanned annotated PDF input, with explicit PDF-to-PNG conversion before downstream processing.
-- The bundle opening records the four stages and two independent markdown artifacts as fixed expectations for future implementation.
+- The active bundle records the first proving contract as local-only, CLI batch, scanned annotated PDF input, with explicit PDF-to-PNG conversion before downstream processing.
+- The active bundle records the four stages and two independent markdown artifacts as fixed expectations for future implementation.
 - The plan contains a proof-level CLI contract that keeps prep evidence separate from the four runtime stages, without choosing tooling or final artifact field wording.
-- The plan defines an exact test packet to hunt down by count and role, while leaving actual numeric spread or page ids as operator work.
-- The bundle opening records sample qualification as deferred but mandatory before runtime proof, without making sample choice the immediate purpose of implementation-01.
-- The bundle opening orders future work so tooling choice occurs only after proof contract and sample-gate seams are defined.
-- Approval gates remain unchecked because opening this bundle does not itself cross schema, API, auth, storage, deployment, destructive, or broad-architecture boundaries.
+- The plan contains a formal sample qualification gate that records the selected Schopenhauer packet as PDF pages 20-28 and book pages 47-61, with role coverage grounded in operator-observed evidence.
+- The plan keeps explicit that no runtime proof has been executed yet and that Seam 3 may still choose a smaller executable sub-range inside the qualified packet.
+- The active bundle orders future work so tooling choice occurs only after proof contract and sample-gate seams are defined.
+- Approval gates remain unchecked because this bundle still does not cross schema, API, auth, storage, deployment, destructive, or broad-architecture boundaries.
 
 ## Current Repo Runtime State
 
 - No runtime code, CLI path, or stage wiring exists yet.
-- The first active implementation bundle exists and is currently planning-only.
+- The first active implementation bundle now records the proof contract and the qualified sample gate, but remains planning-only.
 - The configured roots already distinguish PDF source, PNG working files, and markdown outputs.
 - The current PDF source is expected to contain two-page scanned spreads rather than clean single-page captures.
 - PDF is the existing configured source surface.
+- The qualified implementation-01 packet is the Schopenhauer PDF pages 20-28 and book pages 47-61, recorded from operator-observed evidence only.
 - The proof-level CLI contract is now recorded in this bundle, but no live runtime path implements it yet.
-- No sample qualification gate or tooling choice has been recorded yet.
+- No runtime proof has been executed yet, and no tooling choice has been recorded yet.
 
 ## Assumptions And Unknowns
 
 - Assumption: the first honest proof remains local-only and batch-oriented.
 - Assumption: rasterized PNG pages will be the downstream working surface even though PDF remains the ingress format.
+- Assumption: the operator-observed Schopenhauer packet is sufficient to evaluate tooling choices before any executable proof is attempted.
 - Unknown: which local rasterization, OCR or vision, and layout stack best satisfies inspectability and evidence retention.
 - Unknown: whether the first runtime path should split spreads before visual extraction or treat spread handling inside the visual extraction stage.
-- Unknown: which concrete numeric spread ids or logical page ids in the source PDF satisfy the defined test packet roles.
+- Unknown: whether the first executable proof should use the full qualified packet or a smaller sub-range inside PDF pages 20-28 and book pages 47-61.
 - Unknown: exact inline markdown field wording, as long as typed provenance and visible uncertainty remain mandatory.
 - Unknown: whether one qualifying sample is enough for both artifact proofs or whether runtime proof will need a small set.
 
