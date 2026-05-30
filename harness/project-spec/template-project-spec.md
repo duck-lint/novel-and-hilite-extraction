@@ -73,11 +73,11 @@
 
 ## Open Questions To Clarify When They Matter
 
-- Decision that would materially change the next implementation directive: Whether the early system should target born-digital exports, scanned images, or mixed-source annotated pages first, because that changes visual extraction difficulty and how much structural inference is required.
-- Safe corpus, dataset, or sample for early probes: A legally safe, bounded annotated book sample with visible chapter structure, multiple annotation forms, at least one ambiguous mark, and at least one intentionally damaged or cropped region to exercise irrecoverable uncertainty.
-- External-call, privacy, mutation, or deployment constraints: It is still open whether external OCR or vision services are allowed, whether material can leave the local machine, and whether artifacts should be written only to local storage during early probes.
-- First interface surface to prove: A command-line or batch pipeline interface that ingests a sample and emits the two markdown artifacts plus inspectable stage evidence.
-- Unknown that is acceptable to defer for now: Exact markdown schemas, provider selection, and whether later tooling will consume the artifacts, as long as the two artifact contracts and authority boundaries stay intact.
+- Decision that would materially change the next implementation directive: v1 targets scanned annotated pages first, with chapter-contiguous reconstruction as the proving scope rather than page-local output only or whole-book continuity.
+- Safe corpus, dataset, or sample for early probes: A private local sample under project control with visible chapter structure, multiple annotation forms, at least one ambiguous mark, and at least one intentionally damaged or cropped region to exercise irrecoverable uncertainty.
+- External-call, privacy, mutation, or deployment constraints: Early development is local-only for OCR and vision execution. Material should remain local during early probes, and full stage evidence should be retained on every run.
+- First interface surface to prove: A CLI batch pipeline that ingests a scanned annotated sample and emits the two markdown artifacts plus inspectable stage evidence.
+- Unknown that is acceptable to defer for now: Exact field wording within the inline markdown schema, local provider selection, and whether later tooling will consume the artifacts, as long as provenance remains inline, confidence stays hybrid numeric plus categorical, and the two artifact contracts remain intact.
 
 ## Project References
 
