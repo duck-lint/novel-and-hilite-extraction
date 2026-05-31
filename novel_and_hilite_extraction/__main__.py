@@ -109,6 +109,16 @@ def build_parser() -> argparse.ArgumentParser:
         help="Current Stage 2 scope. Page-units and bounded block-units are implemented in this seam.",
     )
 
+    stage3_parser = subparsers.add_parser(
+        "stage3-annotation-interpret",
+        help="Interpret existing Stage 1 annotation candidates into bounded candidate-local text evidence.",
+    )
+    stage3_parser.add_argument(
+        "--run-root",
+        required=True,
+        help="Existing run root that already contains stage-1-visual-extraction output.",
+    )
+
     return parser
 
 
@@ -153,6 +163,12 @@ def main(argv: list[str] | None = None) -> int:
             result = run_stage2_structural_reconstruct(
                 run_root=Path(args.run_root),
                 reconstruction_scope=args.reconstruction_scope,
+            )
+        elif args.command == "stage3-annotation-interpret":
+            from .stage3 import CliError, run_stage3_annotation_interpret
+
+            result = run_stage3_annotation_interpret(
+                run_root=Path(args.run_root),
             )
         else:
             parser.error(f"unsupported command: {args.command}")
