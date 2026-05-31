@@ -28,6 +28,12 @@ def _derive_interpretation_kind(
         "enclosure-mark-not-resolved-in-this-seam" in reason_codes
         or "enclosure-like-relation-not-resolved-in-this-seam" in reason_codes
     ):
+        if "unknown-mark-form" in reason_codes:
+            return "enclosure-like-unknown-mark-unresolved"
+        if normalized_class == "underline":
+            return "enclosure-like-underline-unresolved"
+        if normalized_class == "highlight":
+            return "enclosure-like-highlight-unresolved"
         return "enclosure-like-unresolved"
     if "ambiguous-anchor-evidence" in reason_codes:
         if "unknown-mark-form" in reason_codes:
