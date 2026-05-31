@@ -14,6 +14,14 @@ import pypdfium2 as pdfium
 import pytesseract
 
 
+_OCR_TEXT_PLANE_STEPS = [
+    "wash-out-colored-annotation-ink",
+    "contrast-normalize-grayscale",
+    "median-denoise",
+]
+_ENABLE_OCR_TEXT_PLANE_EXPERIMENT = False
+
+
 class CliError(RuntimeError):
     pass
 
@@ -79,6 +87,7 @@ def run_stage1_visual_extract(
     pytesseract.pytesseract.tesseract_cmd = discovery["selected_path"]
     resolved_spread_handling = _resolve_spread_handling(scan_layout, spread_handling)
     resolved_spread_rotation_deg = _resolve_spread_rotation_deg(scan_layout, spread_rotation_deg)
+    ocr_text_plane_enabled = _ENABLE_OCR_TEXT_PLANE_EXPERIMENT
 
     run_root = output_root / run_label
     prep_dir = run_root / "prep" / "pdf-to-png"
@@ -86,11 +95,14 @@ def run_stage1_visual_extract(
     stage1_dir = run_root / "stage-1-visual-extraction"
     ocr_anchor_dir = stage1_dir / "ocr-anchors"
     annotation_dir = stage1_dir / "annotation-observables"
+    ocr_text_plane_dir = stage1_dir / "ocr-text-planes" if ocr_text_plane_enabled else None
     prep_dir.mkdir(parents=True, exist_ok=False)
     derived_dir.mkdir(parents=True, exist_ok=False)
     stage1_dir.mkdir(parents=True, exist_ok=False)
     ocr_anchor_dir.mkdir(parents=True, exist_ok=False)
     annotation_dir.mkdir(parents=True, exist_ok=False)
+    if ocr_text_plane_dir is not None:
+        ocr_text_plane_dir.mkdir(parents=True, exist_ok=False)
 
     preprocess_controls = {
         "scan_layout": scan_layout,
@@ -105,6 +117,11 @@ def run_stage1_visual_extract(
         "gutter_crop_px": gutter_crop_px,
         "top_crop_px": top_crop_px,
         "bottom_crop_px": bottom_crop_px,
+        "ocr_text_plane": {
+            "enabled": ocr_text_plane_enabled,
+            "shared_geometry_with_derived_surface": ocr_text_plane_enabled,
+            "steps": _OCR_TEXT_PLANE_STEPS if ocr_text_plane_enabled else [],
+        },
     }
 
     document = pdfium.PdfDocument(str(pdf_input))
@@ -195,7 +212,18 @@ def run_stage1_visual_extract(
                 derived_png_path = derived_dir / f"{surface_spec['surface_id']}.png"
                 derived_image.save(derived_png_path, format="PNG")
 
-                ocr_result = _run_ocr(derived_image)
+                ocr_text_plane = None
+                ocr_text_plane_path = None
+                ocr_input_image = derived_image
+                if ocr_text_plane_dir is not None:
+                    ocr_text_plane = _build_ocr_text_plane(derived_image)
+                    ocr_text_plane_path = (
+                        ocr_text_plane_dir / f"{surface_spec['surface_id']}-ocr-text-plane.png"
+                    )
+                    cv2.imwrite(str(ocr_text_plane_path), ocr_text_plane["image"])
+                    ocr_input_image = ocr_text_plane["image"]
+
+                ocr_result = _run_ocr(ocr_input_image)
                 text_path = stage1_dir / f"{surface_spec['surface_id']}.txt"
                 text_path.write_text(ocr_result["text"], encoding="utf-8")
                 ocr_anchor_path = ocr_anchor_dir / f"{surface_spec['surface_id']}-ocr-anchors.json"
@@ -256,6 +284,17 @@ def run_stage1_visual_extract(
                         },
                     }
                 )
+                if ocr_text_plane_path is not None and ocr_text_plane is not None:
+                    derived_surface_entries[-1]["ocr_text_plane_png_path"] = _relative_path(
+                        ocr_text_plane_path,
+                        run_root,
+                    )
+                    derived_surface_entries[-1][
+                        "ocr_text_plane_shared_geometry_with_derived_surface"
+                    ] = True
+                    derived_surface_entries[-1]["ocr_text_plane_preprocess"] = ocr_text_plane[
+                        "preprocess"
+                    ]
 
                 stage1_entries.append(
                     {
@@ -299,6 +338,17 @@ def run_stage1_visual_extract(
                         ],
                     }
                 )
+                if ocr_text_plane_path is not None and ocr_text_plane is not None:
+                    stage1_entries[-1]["ocr_text_plane_png_path"] = _relative_path(
+                        ocr_text_plane_path,
+                        run_root,
+                    )
+                    stage1_entries[-1][
+                        "ocr_text_plane_shared_geometry_with_derived_surface"
+                    ] = True
+                    stage1_entries[-1]["ocr_text_plane_preprocess"] = ocr_text_plane[
+                        "preprocess"
+                    ]
     finally:
         if hasattr(document, "close"):
             document.close()
@@ -337,6 +387,11 @@ def run_stage1_visual_extract(
         "tesseract": discovery,
         "pages": stage1_entries,
     }
+    if ocr_text_plane_enabled:
+        stage1_manifest["ocr_text_plane_note"] = (
+            "Stage 1 OCR runs on a retained sibling text plane derived from each derived surface. "
+            "Annotation masks and mark candidates remain computed on the original derived surface."
+        )
     _write_json(stage1_dir / "manifest.json", stage1_manifest)
 
     return {
@@ -448,6 +503,39 @@ def _resolve_spread_rotation_deg(scan_layout: str, requested: int | None) -> int
         return 90
 
     return 0
+
+
+def _build_ocr_text_plane(image: object) -> dict[str, object]:
+    rgb_image = np.array(image.convert("RGB"), dtype=np.uint8)
+    gray_image = cv2.cvtColor(rgb_image, cv2.COLOR_RGB2GRAY)
+    hsv_image = cv2.cvtColor(rgb_image, cv2.COLOR_RGB2HSV)
+
+    color_mask = (hsv_image[:, :, 1] >= 35) & (hsv_image[:, :, 2] >= 80)
+    washed_gray = gray_image.copy()
+    washed_gray[color_mask] = 255
+
+    normalized_gray = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8)).apply(washed_gray)
+    denoised_gray = cv2.medianBlur(normalized_gray, 3)
+
+    return {
+        "image": denoised_gray,
+        "preprocess": {
+            "shared_geometry_with_derived_surface": True,
+            "steps": _OCR_TEXT_PLANE_STEPS,
+            "color_suppression_saturation_min": 35,
+            "color_suppression_value_min": 80,
+            "suppressed_color_pixel_count": int(np.count_nonzero(color_mask)),
+            "contrast_normalization": {
+                "method": "clahe",
+                "clip_limit": 2.0,
+                "tile_grid_size": [8, 8],
+            },
+            "denoise": {
+                "method": "median-blur",
+                "kernel_size": 3,
+            },
+        },
+    }
 
 
 def _run_ocr(image: object) -> dict[str, object]:
