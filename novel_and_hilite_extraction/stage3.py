@@ -12,6 +12,7 @@ class CliError(RuntimeError):
 
 _RESOLVABLE_CLASSES = {"highlight", "underline"}
 _MIN_CONFIDENT_DETECTION = 0.6
+_CONTEXT_LINE_RADIUS = 1
 
 
 def run_stage3_annotation_interpret(run_root: Path) -> dict[str, object]:
@@ -43,6 +44,7 @@ def run_stage3_annotation_interpret(run_root: Path) -> dict[str, object]:
         anchor_payload = _read_json(entry["ocr_anchor_abs_path"])
         candidate_payload = _read_json(entry["annotation_mark_candidates_abs_path"])
         word_index, line_index = _build_anchor_indexes(anchor_payload)
+        ordered_surface_line_ids = _ordered_line_ids(line_index)
         relations_by_candidate = _group_anchor_relations(candidate_payload)
         mark_candidates = candidate_payload.get("mark_candidates")
         if not isinstance(mark_candidates, list):
@@ -84,11 +86,12 @@ def run_stage3_annotation_interpret(run_root: Path) -> dict[str, object]:
                 stage1_manifest_path=stage1_manifest_path,
                 word_index=word_index,
                 line_index=line_index,
+                ordered_line_ids=ordered_surface_line_ids,
             )
 
             if interpretation["interpretation_status"] == "resolved":
                 evidence_text_path = stage3_dir / f"{interpretation_id}.txt"
-                evidence_text = str(interpretation["text_evidence"]["anchor_text"])
+                evidence_text = str(interpretation["text_evidence"]["semantic_entry_text"])
                 evidence_text_path.write_text(evidence_text + "\n", encoding="utf-8")
                 interpretation["text_evidence"]["evidence_text_path"] = _relative_path(
                     evidence_text_path,
@@ -122,10 +125,10 @@ def run_stage3_annotation_interpret(run_root: Path) -> dict[str, object]:
         "command": "stage3-annotation-interpret",
         "scope": "stage-3 annotation interpretation only",
         "scope_note": (
-            "This seam resolves only candidate-local highlight or underline interpretations with "
-            "explicit Stage 1 OCR-anchor support. It does not synthesize markdown artifacts, infer "
-            "themes or author intent, or force ambiguous, enclosure-like, no-anchor, or marginalia "
-            "cases into confident text spans."
+            "This seam resolves only bounded local-context highlight or underline interpretations "
+            "with explicit Stage 1 OCR-anchor support. It does not synthesize markdown artifacts, "
+            "infer themes or author intent, or force ambiguous, enclosure-like, no-anchor, or "
+            "marginalia cases into confident text spans."
         ),
         "status_note": (
             "Stage 4 artifact synthesis and the final markdown outputs remain unimplemented in this seam."
@@ -134,13 +137,15 @@ def run_stage3_annotation_interpret(run_root: Path) -> dict[str, object]:
             "Resolved interpretations are limited to Stage 1 candidates whose normalized class is "
             "highlight or underline, whose Stage 1 detection confidence is at least 0.6, whose "
             "uncertainty flags are empty, whose linked OCR anchors resolve against retained Stage 1 "
-            "anchor tables, and whose candidate relations are not enclosure-like. Every other candidate "
-            "is carried forward as unresolved with explicit reasons."
+            "anchor tables, and whose candidate relations are not enclosure-like. Resolved entries may "
+            "expand to one neighboring OCR line before and after the marked line set on the same surface. "
+            "Every other candidate is carried forward as unresolved with explicit reasons."
         ),
         "non_normalization_note": (
             "Resolved text evidence is retained directly from linked Stage 1 OCR word anchors with an "
-            "explicit line-anchor fallback. This seam does not rewrite OCR text or merge separate "
-            "annotation candidates into artifact-level claims."
+            "explicit line-anchor fallback, then widened only by a one-line local context window on the "
+            "same surface. This seam does not rewrite OCR text or merge separate annotation candidates "
+            "into artifact-level claims."
         ),
         "generated_at_utc": _utc_now(),
         "upstream_stage1_manifest_path": _relative_path(stage1_manifest_path, run_root),
@@ -156,6 +161,7 @@ def run_stage3_annotation_interpret(run_root: Path) -> dict[str, object]:
             "requires_empty_stage1_uncertainty_flags": True,
             "requires_linked_ocr_anchor_ids": True,
             "forbids_enclosure_like_relations": True,
+            "context_line_radius": _CONTEXT_LINE_RADIUS,
         },
         "resolved_interpretation_count": resolved_interpretation_count,
         "unresolved_interpretation_count": unresolved_interpretation_count,
@@ -184,6 +190,7 @@ def _build_interpretation_record(
     stage1_manifest_path: Path,
     word_index: dict[str, dict[str, object]],
     line_index: dict[str, dict[str, object]],
+    ordered_line_ids: list[str],
 ) -> dict[str, object]:
     candidate_id = _required_string(candidate, "candidate_id")
     normalized_class = str(candidate.get("normalized_class") or "unknown")
@@ -204,6 +211,7 @@ def _build_interpretation_record(
         linked_ocr_line_ids=linked_ocr_line_ids,
         word_index=word_index,
         line_index=line_index,
+        ordered_line_ids=ordered_line_ids,
     )
 
     unresolved_reason_codes: list[str] = []
@@ -238,7 +246,7 @@ def _build_interpretation_record(
     unresolved_reason_codes = _ordered_unique_strings(unresolved_reason_codes)
     interpretation_status = "resolved" if not unresolved_reason_codes else "unresolved"
     interpretation_kind = (
-        f"{normalized_class}-text-span" if interpretation_status == "resolved" else "unresolved"
+        f"{normalized_class}-local-context" if interpretation_status == "resolved" else "unresolved"
     )
 
     return {
@@ -270,9 +278,14 @@ def _build_interpretation_record(
             "selection_rule": (
                 "Resolve only clean Stage 1 highlight or underline candidates with confidence at least "
                 "0.6, no Stage 1 uncertainty flags, anchor references that resolve against retained OCR "
-                "anchor tables, and no enclosure-like relation."
+                "anchor tables, and no enclosure-like relation. Then widen the resolved span by at most "
+                "one neighboring OCR line before and after the marked line set on the same surface."
             ),
             "text_resolution_mode": anchor_text_evidence["source_mode"],
+            "context_expansion_mode": anchor_text_evidence["context_mode"],
+            "context_line_radius": _CONTEXT_LINE_RADIUS,
+            "marked_line_count": len(anchor_text_evidence["marked_line_ids"]),
+            "context_line_count": len(anchor_text_evidence["context_line_ids"]),
             "relation_types": relation_types,
             "candidate_relation_count": len(candidate_relations),
         },
@@ -280,6 +293,17 @@ def _build_interpretation_record(
             "source_mode": anchor_text_evidence["source_mode"],
             "anchor_text": anchor_text_evidence["anchor_text"],
             "line_texts": anchor_text_evidence["line_texts"],
+            "resolved_span_text": anchor_text_evidence["anchor_text"],
+            "semantic_entry_text": (
+                anchor_text_evidence["context_text"] or anchor_text_evidence["anchor_text"]
+            ),
+            "marked_line_ids": anchor_text_evidence["marked_line_ids"],
+            "context_line_ids": anchor_text_evidence["context_line_ids"],
+            "context_before_lines": anchor_text_evidence["context_before_lines"],
+            "context_after_lines": anchor_text_evidence["context_after_lines"],
+            "context_before_text": "\n".join(anchor_text_evidence["context_before_lines"]),
+            "context_after_text": "\n".join(anchor_text_evidence["context_after_lines"]),
+            "context_text": anchor_text_evidence["context_text"],
             "evidence_text_path": None,
         },
         "anchor_evidence": {
@@ -312,6 +336,7 @@ def _resolve_anchor_text_evidence(
     linked_ocr_line_ids: list[str],
     word_index: dict[str, dict[str, object]],
     line_index: dict[str, dict[str, object]],
+    ordered_line_ids: list[str],
 ) -> dict[str, object]:
     ordered_words = [word_index[word_id] for word_id in linked_ocr_word_ids if word_id in word_index]
     ordered_words.sort(key=lambda item: int(item.get("reading_order") or 0))
@@ -330,23 +355,117 @@ def _resolve_anchor_text_evidence(
             else:
                 line_order.setdefault(line_id, int(word_anchor.get("reading_order") or 0))
 
-        ordered_line_ids = sorted(grouped_line_words, key=lambda line_id: line_order.get(line_id, 0))
-        line_texts = [" ".join(grouped_line_words[line_id]) for line_id in ordered_line_ids]
-        return {
-            "source_mode": "word-anchors",
-            "anchor_text": "\n".join(line_texts),
-            "line_texts": line_texts,
-        }
+        marked_line_ids = sorted(grouped_line_words, key=lambda line_id: line_order.get(line_id, 0))
+        line_texts = [" ".join(grouped_line_words[line_id]) for line_id in marked_line_ids]
+        return _build_contextual_text_evidence(
+            source_mode="word-anchors",
+            anchor_text="\n".join(line_texts),
+            line_texts=line_texts,
+            marked_line_ids=marked_line_ids,
+            line_index=line_index,
+            ordered_line_ids=ordered_line_ids,
+        )
 
     ordered_lines = [line_index[line_id] for line_id in linked_ocr_line_ids if line_id in line_index]
     ordered_lines.sort(key=lambda item: int(item.get("reading_order") or 0))
     line_texts = [str(line_anchor.get("text") or "").strip() for line_anchor in ordered_lines]
     line_texts = [line_text for line_text in line_texts if line_text]
+    marked_line_ids = [
+        str(line_anchor.get("ocr_line_id") or "")
+        for line_anchor in ordered_lines
+        if str(line_anchor.get("ocr_line_id") or "")
+    ]
+    if line_texts:
+        return _build_contextual_text_evidence(
+            source_mode="line-anchors",
+            anchor_text="\n".join(line_texts),
+            line_texts=line_texts,
+            marked_line_ids=marked_line_ids,
+            line_index=line_index,
+            ordered_line_ids=ordered_line_ids,
+        )
+
     return {
-        "source_mode": "line-anchors" if line_texts else "none",
-        "anchor_text": "\n".join(line_texts),
-        "line_texts": line_texts,
+        "source_mode": "none",
+        "context_mode": "none",
+        "anchor_text": "",
+        "line_texts": [],
+        "marked_line_ids": [],
+        "context_line_ids": [],
+        "context_before_lines": [],
+        "context_after_lines": [],
+        "context_text": "",
     }
+
+
+def _build_contextual_text_evidence(
+    source_mode: str,
+    anchor_text: str,
+    line_texts: list[str],
+    marked_line_ids: list[str],
+    line_index: dict[str, dict[str, object]],
+    ordered_line_ids: list[str],
+) -> dict[str, object]:
+    context_line_ids = _expanded_context_line_ids(marked_line_ids, ordered_line_ids)
+    marked_line_id_set = set(marked_line_ids)
+    marked_indexes = [
+        index for index, line_id in enumerate(context_line_ids) if line_id in marked_line_id_set
+    ]
+    first_marked_index = min(marked_indexes) if marked_indexes else 0
+    last_marked_index = max(marked_indexes) if marked_indexes else -1
+    context_before_lines: list[str] = []
+    context_after_lines: list[str] = []
+    context_line_texts: list[str] = []
+
+    for index, line_id in enumerate(context_line_ids):
+        line_text = str(line_index.get(line_id, {}).get("text") or "").strip()
+        if not line_text:
+            continue
+        context_line_texts.append(line_text)
+        if index < first_marked_index:
+            context_before_lines.append(line_text)
+        elif index > last_marked_index:
+            context_after_lines.append(line_text)
+
+    return {
+        "source_mode": source_mode,
+        "context_mode": (
+            "line-neighborhood" if context_line_ids != marked_line_ids else "anchor-lines-only"
+        ),
+        "anchor_text": anchor_text,
+        "line_texts": line_texts,
+        "marked_line_ids": marked_line_ids,
+        "context_line_ids": context_line_ids,
+        "context_before_lines": context_before_lines,
+        "context_after_lines": context_after_lines,
+        "context_text": "\n".join(context_line_texts),
+    }
+
+
+def _expanded_context_line_ids(marked_line_ids: list[str], ordered_line_ids: list[str]) -> list[str]:
+    if not marked_line_ids:
+        return []
+
+    ordered_index = {line_id: index for index, line_id in enumerate(ordered_line_ids)}
+    marked_indexes = [ordered_index[line_id] for line_id in marked_line_ids if line_id in ordered_index]
+    if not marked_indexes:
+        return marked_line_ids
+
+    start_index = max(0, min(marked_indexes) - _CONTEXT_LINE_RADIUS)
+    end_index = min(len(ordered_line_ids) - 1, max(marked_indexes) + _CONTEXT_LINE_RADIUS)
+    return ordered_line_ids[start_index : end_index + 1]
+
+
+def _ordered_line_ids(line_index: dict[str, dict[str, object]]) -> list[str]:
+    ordered_lines = sorted(
+        line_index.values(),
+        key=lambda item: int(item.get("reading_order") or 0),
+    )
+    return [
+        str(line_anchor.get("ocr_line_id") or "")
+        for line_anchor in ordered_lines
+        if str(line_anchor.get("ocr_line_id") or "")
+    ]
 
 
 def _build_anchor_indexes(

@@ -2,13 +2,13 @@
 
 ## Intent
 
-Carry the first active implementation bundle through the current live runtime seams using the approved local stack-1 path, while keeping the proof contract honest about the present implementation boundary: prep plus Stage 1 visual extraction, Stage 2 structural reconstruction limited to ordered logical page units and bounded ordered block units, and a bounded Stage 3 annotation-interpretation seam limited to candidate-local highlight or underline evidence with explicit unresolved carry-forward.
+Carry the first active implementation bundle through the current live runtime seams using the approved local stack-1 path, while keeping the proof contract honest about the present implementation boundary: prep plus Stage 1 visual extraction, Stage 2 structural reconstruction limited to ordered logical page units and bounded ordered block units, and a bounded Stage 3 annotation-interpretation seam limited to local-context highlight or underline evidence with explicit unresolved carry-forward.
 
-Delivery posture: implement only local CLI prep plus stage-1 visual extraction, Stage 2 structural reconstruction, and a bounded Stage 3 annotation-interpretation seam against explicit PDF and page-range inputs, retain inspectable prep, OCR, OCR-anchor, mark-observable, logical-page, block-unit, and candidate-local interpretation evidence, and leave Stage 4 plus the two markdown terminal artifacts as future work under the same proof contract.
+Delivery posture: implement only local CLI prep plus stage-1 visual extraction, Stage 2 structural reconstruction, and a bounded Stage 3 annotation-interpretation seam against explicit PDF and page-range inputs, retain inspectable prep, OCR, OCR-anchor, mark-observable, logical-page, block-unit, and bounded local-context interpretation evidence, and leave Stage 4 plus the two markdown terminal artifacts as future work under the same proof contract.
 
 The current source shape is a scanned PDF rendered as two-page spreads from a facedown photocopier workflow. The anchor packet also includes rotated spread rasters, so Implementation-01 must preserve the raw raster evidence while allowing explicit operator-declared rectification before spread splitting and OCR instead of assuming the raw width midpoint is already semantically page-aligned.
 
-Observed evidence: there is now a live stage-1 runtime, a live spread-aware Stage 2 runtime at page-unit scope, a bounded Stage 2 block-unit extension grounded only in retained OCR layout evidence, and a bounded Stage 3 runtime that consumes retained Stage 1 OCR anchors plus mark candidates to resolve only clean highlight or underline cases while preserving explicit unresolved ambiguity. The configured roots already distinguish PDF source, PNG working files, and markdown outputs, and the PDF-page-28 anchor proved that splitting the unrectified raw spread at width midpoint produces sideways partial-page crops and garbage OCR instead of intent-satisfying whole-page evidence.
+Observed evidence: there is now a live stage-1 runtime, a live spread-aware Stage 2 runtime at page-unit scope, a bounded Stage 2 block-unit extension grounded only in retained OCR layout evidence, and a bounded Stage 3 runtime that consumes retained Stage 1 OCR anchors plus mark candidates to resolve only clean highlight or underline cases into bounded local-context entries while preserving explicit unresolved ambiguity. The configured roots already distinguish PDF source, PNG working files, and markdown outputs, and the PDF-page-28 anchor proved that splitting the unrectified raw spread at width midpoint produces sideways partial-page crops and garbage OCR instead of intent-satisfying whole-page evidence.
 
 The supplied Schopenhauer packet is now the qualified implementation-01 sample by operator-observed evidence: PDF pages 20-28 and book pages 47-61 inside the configured whole-book PDF. That closes sample qualification for planning purposes while leaving tooling choice, runtime execution, and any narrower first-run sub-range deferred.
 
@@ -16,7 +16,7 @@ The supplied Schopenhauer packet is now the qualified implementation-01 sample b
 
 - Invariant constraints: preserve two independent markdown terminal artifacts; preserve the four explicit stages of visual extraction, structural reconstruction, annotation interpretation, and artifact synthesis; preserve canonical non-normalization by default; preserve typed provenance and visible uncertainty; preserve local-only first proof, scanned annotated pages first, CLI batch first, and chapter-contiguous reconstruction first.
 - Task constraints: keep claims at prep plus stage-1 visual extraction, Stage 2 structural reconstruction, and a bounded Stage 3 interpretation pass from retained Stage 1 OCR and mark-observable evidence; treat PDF as the input format; make PDF-to-PNG conversion explicit; keep controls generic for the scanned-novel object class; do not parse repo config in runtime code; do not claim Stage 4 or final artifacts exist.
-- Constraint conflicts: the active proof contract still names later stages and terminal artifacts as required future behavior, while the live implementation now stops at bounded Stage 3 candidate-local interpretation; later seams must preserve that distinction. Stage 3 must continue to preserve visible uncertainty and typed provenance rather than forcing enclosure-like or ambiguous cases into confident spans. Older Stage 1 and Stage 2 validation roots created before spread rectification remain mechanically useful as evidence of prior behavior, but they are stale for intent-level claims about upright whole-page OCR on rotated spreads.
+- Constraint conflicts: the active proof contract still names later stages and terminal artifacts as required future behavior, while the live implementation now stops at bounded Stage 3 local-context interpretation; later seams must preserve that distinction. Stage 3 must continue to preserve visible uncertainty and typed provenance rather than forcing enclosure-like or ambiguous cases into confident spans. Older Stage 1 and Stage 2 validation roots created before spread rectification remain mechanically useful as evidence of prior behavior, but they are stale for intent-level claims about upright whole-page OCR on rotated spreads.
 - Allowed transformation types: maintain the active plan/tracker pair; preserve the existing Stage 1 and Stage 2 behaviors without editing them unless compatibility breaks; add bounded Stage 3 runtime evidence derived only from retained Stage 1 observables; retain raw prep evidence plus any rectified spread evidence needed for truthful lineage; use explicit Tesseract discovery with fallback; record validation evidence and affected surfaces truthfully.
 - Affected surfaces: the implementation-01 active bundle contents; `novel_and_hilite_extraction/__main__.py`; `novel_and_hilite_extraction/stage3.py`; retained temp run roots used for rotated-anchor and Stage 3 validation; the stated proving contract for the live runtime slices.
 - Non-affected surfaces: `novel_and_hilite_extraction/stage1.py`; `novel_and_hilite_extraction/stage2.py`; tests; artifact schema detail; provider selection; storage; auth; deployment; downstream integrations; archived bundles; project-spec invariants.
@@ -25,7 +25,7 @@ The supplied Schopenhauer packet is now the qualified implementation-01 sample b
    - pass: the plan keeps tooling choice deferred until after the proof contract and qualified sample gate exist.
   - pass: the first runtime slice explicitly includes PDF-to-PNG conversion before visual extraction.
   - pass: all four stages and both terminal artifacts remain explicit.
-   - pass: the live seams now claim only prep, stage-1 OCR evidence, Stage 2 logical-page plus bounded block-unit reconstruction, and bounded Stage 3 candidate-local interpretation, not Stage 4 or final markdown artifacts.
+   - pass: the live seams now claim only prep, stage-1 OCR evidence, Stage 2 logical-page plus bounded block-unit reconstruction, and bounded Stage 3 local-context interpretation, not Stage 4 or final markdown artifacts.
    - pass: the live Stage 3 seam keeps ambiguity, no-anchor cases, enclosure-like relations, and marginalia explicit as unresolved rather than forcing confident text spans.
    - pass: no stable API, schema, deployment, or final-artifact claim is implied by the implemented stage-1 seam.
   - pass: no provenance, uncertainty, or canonical-fidelity rule is weakened.
@@ -266,7 +266,7 @@ python -m novel_and_hilite_extraction stage3-annotation-interpret \
 
 Current behavior boundary:
 
-- The implemented runtime now covers prep plus Stage 1 visual extraction, bounded Stage 2 structural reconstruction, and a bounded Stage 3 candidate-local annotation-interpretation seam.
+- The implemented runtime now covers prep plus Stage 1 visual extraction, bounded Stage 2 structural reconstruction, and a bounded Stage 3 local-context annotation-interpretation seam.
 - `python -m novel_and_hilite_extraction stage1-visual-extract` rasterizes selected PDF pages into retained source-spread PNG prep evidence, derives page-aware surfaces from each spread through explicit reusable controls, and runs OCR over each derived surface.
 - The Stage 1 command writes prep evidence under `prep/pdf-to-png/` and `prep/derived-surfaces/`, and writes stage-1 OCR plus annotation-observable evidence under `stage-1-visual-extraction/`, with manifests in those locations.
 - Page selection stays explicit through `--page-range`, including simple comma and inclusive range combinations.
@@ -282,7 +282,7 @@ Current behavior boundary:
 - `python -m novel_and_hilite_extraction stage3-annotation-interpret` consumes the retained Stage 1 manifest plus per-surface OCR-anchor and mark-candidate payloads, emits one Stage 3 interpretation record per Stage 1 candidate, writes retained text evidence files only for resolved interpretations, and records unresolved reason codes for every non-promoted candidate in `stage-3-annotation-interpretation/manifest.json`.
 - The Stage 3 command refuses to reuse an existing `stage-3-annotation-interpretation/` directory beneath the same run root, so reruns cannot silently mix stale interpretation evidence with fresh results.
 - The Stage 3 validator also requires the carried-through Stage 1 derived PNG and OCR text evidence files to exist before interpretation starts, so Stage 3 cannot emit lineage that points at missing Stage 1 evidence.
-- The Stage 3 manifest states the claim boundary explicitly: only clean highlight or underline candidates with retained anchor evidence promote to resolved text spans, while ambiguous, enclosure-like, no-anchor, marginalia, and other uncertainty-bearing candidates remain unresolved. Stage 4 and final markdown artifacts are not implemented in this seam.
+- The Stage 3 manifest states the claim boundary explicitly: only clean highlight or underline candidates with retained anchor evidence promote to resolved interpretations. Resolved entries preserve the anchor-local `resolved_span_text` while also exposing a widened `semantic_entry_text` that may include one neighboring OCR line before and after the marked line set on the same surface. Ambiguous, enclosure-like, no-anchor, marginalia, and other uncertainty-bearing candidates remain unresolved. Stage 4 and final markdown artifacts are not implemented in this seam.
 
 ## Implemented Stage 2 Slice
 
@@ -328,13 +328,14 @@ Validation status for the live slice:
 - Passed: fresh corrected-root Stage 3 rerun validation at `C:\Users\madis\AppData\Local\Temp\novel-stage3-anchor-suite-rerun-732bc688-1ca8-4988-8e3b-15dc3a029104\anchor-suite-stage1`, where a fresh Stage 1 run on PDF pages 20, 24, 25, and 28 again produced 122 Stage 1 candidates and a fresh Stage 3 run again emitted 122 interpretation records with 5 resolved and 117 unresolved; `pdf-page-0020-right` resolved `mark-candidate-0004` and `mark-candidate-0010`, `pdf-page-0024-left` resolved only highlight candidates `mark-candidate-0005` and `mark-candidate-0006` while keeping enclosure ambiguity unresolved, and `pdf-page-0025-right`, `pdf-page-0028-left`, and `pdf-page-0028-right` again produced zero resolved interpretations.
 - Passed: Stage 3 rerun guard on that same fresh root failed cleanly with `error: stage-3 annotation interpretation evidence already exists`, preventing stale evidence reuse within a reused run root.
 - Passed: Stage 3 lineage-integrity validation on fresh corrected root `C:\Users\madis\AppData\Local\Temp\novel-stage3-lineage-check-404a697c-b141-4937-a653-ba7c71ca5b6a\anchor-suite-stage1`, where a fresh Stage 1 run again produced 122 Stage 1 candidates and Stage 3 again emitted 122 interpretation records with 5 resolved and 117 unresolved; a deliberately damaged copy of that same run root then failed cleanly with `error: missing stage-1 OCR text evidence ...\pdf-page-0020-right.txt`, proving that Stage 3 now refuses to emit interpretation lineage when carried-through Stage 1 evidence is missing.
+- Passed: widened Stage 3 local-context validation on fresh corrected root `C:\Users\madis\AppData\Local\Temp\novel-stage3-context-check-c608041a-3b72-4939-aa55-a8a8aca66ff1\anchor-suite-stage1`, where a fresh Stage 1 run again produced 122 Stage 1 candidates and Stage 3 again emitted 122 interpretation records with 5 resolved and 117 unresolved; `pdf-page-0020-right` kept exactly two resolved interpretations while widening each to bounded three-line local context, `pdf-page-0024-left` kept no resolved enclosure-like interpretation while resolving only `mark-candidate-0005` and `mark-candidate-0006` into bounded local context, and `pdf-page-0025-right`, `pdf-page-0028-left`, and `pdf-page-0028-right` again produced zero resolved interpretations.
 - Stale for intent-level claims: older pre-rectification anchor and full-packet run roots remain evidence of the prior malformed width-midpoint behavior and should not be cited as proof of correct rotated-spread handling.
 
 Current rotated-novel proof surface note: the omitted-flag layout-aware default root is now the current proof surface for rotated two-page spreads. The explicit `--spread-rotation-deg 90` full-packet root remains supporting evidence of equivalence, not the sole proof surface.
 
 ## Non-Goals
 
-- Do not implement later Stage 2 seams beyond bounded block-unit reconstruction, broader Stage 3 semantics beyond candidate-local interpretation, Stage 4, or either final markdown artifact yet.
+- Do not implement later Stage 2 seams beyond bounded block-unit reconstruction, broader Stage 3 semantics beyond bounded local-context interpretation, Stage 4, or either final markdown artifact yet.
 - Do not define final markdown field wording or artifact schema details yet.
 - Do not parse repo config in runtime code or bake in Schopenhauer-specific heuristics.
 - Do not add packaging, deployment, auth, storage, or stable public API commitments.
@@ -346,7 +347,7 @@ Current rotated-novel proof surface note: the omitted-flag layout-aware default 
 - The active bundle records the four stages and two independent markdown artifacts as fixed expectations for future implementation.
 - The plan contains a proof-level CLI contract that keeps prep evidence separate from the four runtime stages, without choosing tooling or final artifact field wording.
 - The plan contains a formal sample qualification gate that records the selected Schopenhauer packet as PDF pages 20-28 and book pages 47-61, with role coverage grounded in operator-observed evidence.
-- The plan keeps explicit that live runtime validation now covers Stage 1 and bounded Stage 2 only, while the full four-stage proof and both markdown terminal artifacts remain unimplemented.
+- The plan keeps explicit that live runtime validation now covers prep, Stage 1, bounded Stage 2, and bounded Stage 3 only, while Stage 4 and both markdown terminal artifacts remain unimplemented.
 - The plan defines Seam 3 as object-class tooling evaluation and rejects Schopenhauer-specific heuristics as an admissible default.
 - The plan records that the approved local-first stack is now installed and minimally validated against the qualified packet, and that no grounded reason exists yet to narrow below the full qualified packet.
 - The active bundle orders future work so tooling choice occurs only after proof contract and sample-gate seams are defined.
@@ -365,12 +366,12 @@ Current rotated-novel proof surface note: the omitted-flag layout-aware default 
 - A repo-root package now provides `python -m novel_and_hilite_extraction stage1-visual-extract`.
 - A repo-root package now also provides `python -m novel_and_hilite_extraction stage2-structural-reconstruct`.
 - The runtime currently implements explicit page-range parsing, spread-aware derived surface generation, reusable Tesseract discovery, stage-1 OCR evidence manifests, Stage 1 OCR-anchor and mark-observable retention, ordered logical-page reconstruction, and bounded ordered block reconstruction from retained OCR layout evidence.
-- Stages 3-4 and both final markdown artifacts do not exist yet.
+- Stage 3 now exists as a bounded local-context annotation-interpretation seam; Stage 4 and both final markdown artifacts do not exist yet.
 - The configured roots already distinguish PDF source, PNG working files, and markdown outputs.
 - The current PDF source is expected to contain two-page scanned spreads rather than clean single-page captures.
 - PDF is the existing configured source surface.
 - The qualified implementation-01 packet is the Schopenhauer PDF pages 20-28 and book pages 47-61, recorded from operator-observed evidence only.
-- The proof-level CLI contract is now recorded in this bundle, and the live runtime currently implements the prep plus Stage 1 subset and a bounded Stage 2 subset of that contract.
+- The proof-level CLI contract is now recorded in this bundle, and the live runtime currently implements the prep plus Stage 1 subset, a bounded Stage 2 subset, and a bounded Stage 3 subset of that contract.
 - The first local tooling path is now selected and installed as `pypdfium2` + `Pillow` + `opencv-python` + `pytesseract` + local Tesseract OCR.
 - A stack-level smoke test has been executed successfully, and the live runtime seams have also passed the one-page and full-packet spread-aware Stage 1 proof runs plus anchor and full-packet Stage 2 block-unit validation.
 
@@ -380,7 +381,7 @@ Current rotated-novel proof surface note: the omitted-flag layout-aware default 
 - Assumption: rasterized PNG pages will be the downstream working surface even though PDF remains the ingress format.
 - Assumption: the operator-observed Schopenhauer packet is sufficient to evaluate tooling choices and to anchor the first executable proof runs.
 - Assumption: the Schopenhauer packet is a useful proxy for the broader scanned-novel object class, but not a license for book-specific runtime behavior.
-- Unknown: whether the installed stack remains sufficient once runtime wiring reaches structural reconstruction, annotation interpretation, and full-packet evidence retention.
+- Unknown: whether the installed stack remains sufficient once runtime wiring reaches Stage 4 artifact synthesis and full-packet evidence retention beyond the current corrected-root proof surfaces.
 - Unknown: whether the current split-halves plus crop control surface is sufficient across later novels in the same object class or whether rectification controls will become necessary.
 - Unknown: whether tooling evaluation will reveal a grounded reason to narrow the first executable proof below the full qualified packet.
 - Unknown: which minimal reusable controls are sufficient across later novels in the same object class without creating a brittle operator surface.
