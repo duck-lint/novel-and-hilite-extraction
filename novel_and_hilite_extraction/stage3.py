@@ -31,12 +31,14 @@ def _derive_interpretation_kind(
         return "enclosure-like-unresolved"
     if "ambiguous-anchor-evidence" in reason_codes:
         return "ambiguous-anchor-unresolved"
-    if (
-        "missing-anchor-evidence" in reason_codes
-        or "unresolved-anchor-reference" in reason_codes
-        or "empty-anchor-text" in reason_codes
-    ):
-        return "no-anchor-evidence-unresolved"
+    if "unresolved-anchor-reference" in reason_codes:
+        return "unresolved-anchor-reference-unresolved"
+    if "missing-anchor-evidence" in reason_codes and "empty-anchor-text" in reason_codes:
+        return "missing-anchor-and-empty-text-unresolved"
+    if "missing-anchor-evidence" in reason_codes:
+        return "missing-anchor-evidence-unresolved"
+    if "empty-anchor-text" in reason_codes:
+        return "empty-anchor-text-unresolved"
     if (
         "below-stage1-confidence-threshold" in reason_codes
         or "missing-stage1-detection-confidence" in reason_codes

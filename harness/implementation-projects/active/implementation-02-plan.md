@@ -57,9 +57,10 @@ Broader semantics in this bundle means deterministic semantic differentiation ov
 
 - Stage 1 corrected rotated-spread extraction is validated and remains the current proof surface for upstream visual evidence.
 - Stage 2 ordered page-unit and bounded block-unit reconstruction are validated on corrected roots and are not the target of this successor bundle.
-- Stage 3 currently resolves only clean highlight or underline candidates, preserves anchor-local `resolved_span_text`, exposes widened `semantic_entry_text`, and now differentiates unresolved cases into deterministic families such as `no-anchor-evidence-unresolved`, `ambiguous-anchor-unresolved`, `marginalia-unresolved`, `low-confidence-unresolved`, `enclosure-like-unresolved`, and `stage1-uncertainty-unresolved`.
+- Stage 3 currently resolves only clean highlight or underline candidates, preserves anchor-local `resolved_span_text`, exposes widened `semantic_entry_text`, and now differentiates unresolved cases into deterministic families such as `missing-anchor-and-empty-text-unresolved`, `ambiguous-anchor-unresolved`, `marginalia-unresolved`, `low-confidence-unresolved`, `enclosure-like-unresolved`, and `stage1-uncertainty-unresolved`, with `unresolved-anchor-reference-unresolved` available but unpopulated on the current corrected-root proof surface.
 - The corrected-root Stage 3 baseline is 122 total interpretations, 5 resolved, and 117 unresolved.
 - A fresh corrected-root rerun at `C:\Users\madis\AppData\Local\Temp\novel-stage3-family-check-ee58be94-f1ba-4dfe-8b63-11eccf53c85f\anchor-suite-stage1` preserved the same 122 total interpretations with 5 resolved and 117 unresolved while surfacing those unresolved-family kinds without promoting additional candidates.
+- A second fresh corrected-root rerun at `C:\Users\madis\AppData\Local\Temp\novel-stage3-no-anchor-split-fbdfdacf-ab59-447e-95fc-0d46e6c09d16\anchor-suite-stage1` preserved the same 122 total interpretations with 5 resolved and 117 unresolved while replacing the prior 36-entry `no-anchor-evidence-unresolved` bucket with a more specific 36-entry `missing-anchor-and-empty-text-unresolved` bucket and showing zero `unresolved-anchor-reference-unresolved` cases on the current proof surface.
 - Implementation-01 is archived as complete at bounded Stage 3 scope, so implementation-02 is now the sole live bundle.
 
 ## Assumptions And Unknowns
@@ -68,8 +69,10 @@ Broader semantics in this bundle means deterministic semantic differentiation ov
 - Assumption: broader semantics should come from current Stage 1 observables plus current Stage 3 local-context evidence, not from new upstream observables.
 - Assumption: the user-provided admissibility report is the governing authority for this successor opening because the project-spec surfaces remain template-only.
 - Partially resolved: the current manifest shape already supports at least six deterministic unresolved families without adding a new payload category or changing the promotion boundary.
+- Partially resolved: the current manifest shape also supports a narrower no-anchor split without changing the payload contract; on the present corrected-root proof surface, that split reveals a populated combined missing-anchor-plus-empty-text family and no unresolved-anchor-reference cases.
 - Unknown: whether broader semantics beyond unresolved-family differentiation need a new payload category or another approval-gated contract change.
 - Unknown: whether the current Stage 3 manifest shape is sufficient for the desired broader semantics.
+- Unknown: whether the next governing semantic tension is now `ambiguous-anchor-unresolved`, `enclosure-like-unresolved`, or a deeper explanation of the combined missing-anchor-plus-empty-text family.
 - Unknown: whether one successor bundle is enough to make Stage 3 strong enough for later Stage 4 authorization.
 
 ## Affected and Non-Affected Surfaces
