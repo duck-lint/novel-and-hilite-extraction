@@ -51,11 +51,10 @@ def _derive_interpretation_kind(
         return "missing-anchor-evidence-unresolved"
     if "empty-anchor-text" in reason_codes:
         return "empty-anchor-text-unresolved"
-    if (
-        "below-stage1-confidence-threshold" in reason_codes
-        or "missing-stage1-detection-confidence" in reason_codes
-    ):
-        return "low-confidence-unresolved"
+    if "missing-stage1-detection-confidence" in reason_codes:
+        return "missing-stage1-detection-confidence-unresolved"
+    if "below-stage1-confidence-threshold" in reason_codes:
+        return "below-stage1-confidence-threshold-unresolved"
     if "unknown-mark-form" in reason_codes:
         return "unknown-mark-unresolved"
     if "normalized-class-not-resolved-in-this-seam" in reason_codes:
