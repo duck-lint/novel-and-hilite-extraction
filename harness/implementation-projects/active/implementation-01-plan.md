@@ -2,22 +2,22 @@
 
 ## Intent
 
-Carry the first active implementation bundle through proof-contract and sample-qualification planning, without choosing tooling or building runtime yet.
+Carry the first active implementation bundle through the first live runtime seam using the approved local stack-1 path, while keeping the proof contract honest about stage-1-only scope.
 
-Delivery posture: define the first honest runtime contract as local-only, CLI batch, scanned annotated pages first, chapter-contiguous reconstruction first, with PDF as ingress and an explicit PDF-to-PNG page conversion step before downstream processing.
+Delivery posture: implement only local CLI prep plus stage-1 visual extraction against explicit PDF and page-range inputs, retain inspectable prep and OCR evidence, and leave stages 2-4 plus the two markdown terminal artifacts as future work under the same proof contract.
 
 The current source shape is a scanned PDF rendered as two-page spreads from a facedown photocopier workflow. Implementation-01 records that shape as an input constraint for the proof contract without yet choosing a split, crop, or rectification strategy.
 
-Observed evidence: there is no runtime yet, and the configured roots already distinguish PDF source, PNG working files, and markdown outputs.
+Observed evidence: there is now a minimal stage-1 runtime, and the configured roots already distinguish PDF source, PNG working files, and markdown outputs.
 
 The supplied Schopenhauer packet is now the qualified implementation-01 sample by operator-observed evidence: PDF pages 20-28 and book pages 47-61 inside the configured whole-book PDF. That closes sample qualification for planning purposes while leaving tooling choice, runtime execution, and any narrower first-run sub-range deferred.
 
 ## Admissibility Report
 
 - Invariant constraints: preserve two independent markdown terminal artifacts; preserve the four explicit stages of visual extraction, structural reconstruction, annotation interpretation, and artifact synthesis; preserve canonical non-normalization by default; preserve typed provenance and visible uncertainty; preserve local-only first proof, scanned annotated pages first, CLI batch first, and chapter-contiguous reconstruction first.
-- Task constraints: keep implementation-01 at planning level; close the sample qualification gate truthfully from operator-observed evidence; treat PDF as the input format; make PDF-to-PNG conversion explicit in the first runtime slice; do not implement runtime or choose tooling in this seam-closing step.
+- Task constraints: implement only the first live runtime seam; keep claims at prep plus stage-1 visual extraction with OCR evidence; treat PDF as the input format; make PDF-to-PNG conversion explicit; keep controls generic for the scanned-novel object class; do not parse repo config in runtime code; do not claim stages 2-4 or final artifacts exist.
 - Constraint conflicts: none at bundle opening. Future conflict exists if a tooling choice cannot satisfy local-only execution, stage inspectability, or the chapter-contiguous proving scope.
-- Allowed transformation types: maintain the active plan/tracker pair; define the proof contract and staging expectations; convert the generic packet definition into a formal sample qualification gate using the supplied Schopenhauer pages; sequence the future tooling decision; record affected and non-affected surfaces.
+- Allowed transformation types: maintain the active plan/tracker pair; implement a repo-root runtime package for the first stage-1 seam; retain prep and stage-1 evidence; use explicit Tesseract discovery with fallback; record validation evidence and affected surfaces truthfully.
 - Affected surfaces: the implementation-01 active bundle contents; the stated proving contract for the first runtime slice; the planning use of the existing PDF, PNG, and markdown root surfaces; future runtime sequencing expectations.
 - Non-affected surfaces: runtime code; tests; artifact schema detail; provider selection; storage; auth; deployment; downstream integrations; archived bundles; project-spec invariants.
 - Admissibility checks:
@@ -25,7 +25,8 @@ The supplied Schopenhauer packet is now the qualified implementation-01 sample b
    - pass: the plan keeps tooling choice deferred until after the proof contract and qualified sample gate exist.
   - pass: the first runtime slice explicitly includes PDF-to-PNG conversion before visual extraction.
   - pass: all four stages and both terminal artifacts remain explicit.
-   - pass: no runtime proof or stable API claim is implied by closing the sample gate.
+   - pass: the live seam claims only prep and stage-1 OCR evidence, not stages 2-4 or final markdown artifacts.
+   - pass: no stable API, schema, deployment, or final-artifact claim is implied by the implemented stage-1 seam.
   - pass: no provenance, uncertainty, or canonical-fidelity rule is weakened.
 - Stop conditions: stop if the seam would silently amend the two-artifact contract, the four-stage model, provenance or uncertainty requirements, local-only posture, or chapter-contiguous proof scope; stop if the sample gate wording implies runtime success, chooses tooling, locks a stable API, or invents page facts not supplied by the operator.
 
@@ -38,7 +39,7 @@ The supplied Schopenhauer packet is now the qualified implementation-01 sample b
    Define what a qualifying proof sample must contain for honest runtime claims: scanned annotated PDF pages, chapter-contiguous coverage, representative markings, and at least one uncertainty case. This seam is now closed by the supplied Schopenhauer packet at PDF pages 20-28 and book pages 47-61, recorded as operator-observed evidence only. A smaller executable sub-range may still be chosen later from inside this qualified packet.
 
 3. Tooling and runtime selection
-   Only after Seams 1 and 2 exist, choose local rasterization, OCR or vision, layout, and CLI wiring options against the recorded proof contract and sample gate. Keep provider choice subordinate to provenance, uncertainty visibility, stage inspectability, local-only execution, and a reusable control surface for the scanned-novel object class rather than Schopenhauer-specific behavior.
+   Only after Seams 1 and 2 exist, choose local rasterization, OCR or vision, layout, and CLI wiring options against the recorded proof contract and sample gate. Keep provider choice subordinate to provenance, uncertainty visibility, stage inspectability, local-only execution, and a reusable control surface for the scanned-novel object class rather than Schopenhauer-specific behavior. This seam is now partially realized by the first live runtime slice: `python -m novel_and_hilite_extraction stage1-visual-extract`.
 
 ## CLI Proof Contract
 
@@ -141,7 +142,7 @@ Gate evidence basis:
 - Ambiguity case: PDF page 24, book page 54, where the top of the circle could be mistaken as underlining the line above.
 - Bleed-through case: PDF page 25, book page 56.
 
-Limit of claim: this gate records sample qualification only. No runtime proof, extraction success, tooling choice, or stable API claim exists yet.
+Limit of claim: this gate records sample qualification only. Stage-1 runtime validation now exists against this packet, but full-pipeline proof, extraction success across later stages, tooling finality, and stable API claims still do not.
 
 ## Qualified Sample Packet
 
@@ -150,7 +151,7 @@ Selected implementation-01 packet:
 - Source PDF: the configured Schopenhauer whole-book PDF.
 - Packet span: PDF pages 20-28.
 - Book span: pages 47-61.
-- Qualification basis: operator-observed evidence only; no runtime execution has tested this packet yet.
+- Qualification basis: operator-observed evidence fixed the packet; stage-1 runtime validation has now exercised this packet, but later stages remain unimplemented and untested.
 
 Coverage map inside the qualified packet:
 
@@ -220,14 +221,44 @@ Provisional stack ranking for follow-up selection, assuming local-only execution
 3. Pure-Python OCR stack such as `PaddleOCR` or `Surya` plus a separate rasterizer and image-processing layer.
    This remains admissible as a local-only option, but it introduces more moving parts and is currently less grounded in the local environment than the first two paths.
 
-Selection implication for Seam 3: the first local stack is now installed and minimally validated. The next truthful move is to decide the first runtime implementation seam using this stack, not to claim that the full extraction pipeline already exists.
+Selection implication for Seam 3: the first local stack is now installed, minimally validated, and materialized as the first live runtime seam. The next truthful move is to extend the proof incrementally from this stage-1 base, not to claim that the full extraction pipeline already exists.
+
+## Implemented Runtime Slice
+
+Implemented command shape:
+
+```text
+python -m novel_and_hilite_extraction stage1-visual-extract \
+   --pdf-input <path-to-source.pdf> \
+   --page-range <pdf-page-selection> \
+   --output-root <path-to-run-root> \
+   --run-label <short-run-id> \
+   --scan-layout <operator-declared-layout> \
+   --dpi <render-dpi> \
+   [--tesseract-cmd <path-or-command>]
+```
+
+Current behavior boundary:
+
+- The implemented runtime is stage-1 only. It rasterizes selected PDF pages into retained PNG prep evidence and runs OCR over each generated PNG.
+- The command writes prep evidence under `prep/pdf-to-png/` and stage-1 OCR evidence under `stage-1-visual-extraction/`, with manifests in both locations.
+- Page selection stays explicit through `--page-range`, including simple comma and inclusive range combinations.
+- Tesseract resolution is explicit and reusable: honor `--tesseract-cmd` first, then PATH if available, then the fixed known-install order discovered during tooling validation.
+- The stage-1 manifest records the selected Tesseract path, selection rule, candidate probes, selected pages, declared scan layout, and per-page evidence paths.
+- The stage-1 manifest states the claim boundary explicitly: later stages and final markdown artifacts are not implemented in this seam.
+
+Validation status for the live slice:
+
+- Passed: one-page anchor run on PDF page 28 using the clean spread anchor.
+- Passed: full qualified-packet run on PDF pages 20-28.
+- Evidence created in both runs: retained PNGs in `prep/pdf-to-png/`, retained OCR text files in `stage-1-visual-extraction/`, plus `manifest.json` in each of those directories.
 
 ## Non-Goals
 
-- Do not select a provider or library stack yet.
+- Do not implement stages 2-4 or either final markdown artifact yet.
 - Do not define final markdown field wording or artifact schema details yet.
-- Do not execute runtime against the qualified sample yet.
-- Do not build runtime, tests, or automation in this opening step.
+- Do not parse repo config in runtime code or bake in Schopenhauer-specific heuristics.
+- Do not add packaging, deployment, auth, storage, or stable public API commitments.
 - Do not relax canonical fidelity with semantic normalization or hidden repair.
 
 ## Acceptance Criteria
@@ -236,29 +267,33 @@ Selection implication for Seam 3: the first local stack is now installed and min
 - The active bundle records the four stages and two independent markdown artifacts as fixed expectations for future implementation.
 - The plan contains a proof-level CLI contract that keeps prep evidence separate from the four runtime stages, without choosing tooling or final artifact field wording.
 - The plan contains a formal sample qualification gate that records the selected Schopenhauer packet as PDF pages 20-28 and book pages 47-61, with role coverage grounded in operator-observed evidence.
-- The plan keeps explicit that no runtime proof has been executed yet and that Seam 3 may still choose a smaller executable sub-range inside the qualified packet.
+- The plan keeps explicit that only stage-1 runtime validation has executed so far, while the full four-stage proof and both markdown terminal artifacts remain unimplemented.
 - The plan defines Seam 3 as object-class tooling evaluation and rejects Schopenhauer-specific heuristics as an admissible default.
 - The plan records that the approved local-first stack is now installed and minimally validated against the qualified packet, and that no grounded reason exists yet to narrow below the full qualified packet.
 - The active bundle orders future work so tooling choice occurs only after proof contract and sample-gate seams are defined.
+- The repo root now contains a runnable `python -m novel_and_hilite_extraction stage1-visual-extract` surface for prep plus stage-1 OCR evidence only.
+- The implemented seam resolves Tesseract explicitly by override, PATH, then fixed known-install order, and records the selected path in retained manifests.
+- The live seam has passed the required one-page anchor run and the full qualified-packet run with retained prep and stage-1 evidence.
 - Approval gates remain unchecked because this bundle still does not cross schema, API, auth, storage, deployment, destructive, or broad-architecture boundaries.
 
 ## Current Repo Runtime State
 
-- No runtime code, CLI path, or stage wiring exists yet.
-- The first active implementation bundle now records the proof contract and the qualified sample gate, but remains planning-only.
+- A repo-root package now provides `python -m novel_and_hilite_extraction stage1-visual-extract`.
+- The runtime currently implements explicit page-range parsing, PDF-to-PNG prep evidence, reusable Tesseract discovery, and stage-1 OCR evidence manifests.
+- Stages 2-4 and both final markdown artifacts do not exist yet.
 - The configured roots already distinguish PDF source, PNG working files, and markdown outputs.
 - The current PDF source is expected to contain two-page scanned spreads rather than clean single-page captures.
 - PDF is the existing configured source surface.
 - The qualified implementation-01 packet is the Schopenhauer PDF pages 20-28 and book pages 47-61, recorded from operator-observed evidence only.
-- The proof-level CLI contract is now recorded in this bundle, but no live runtime path implements it yet.
+- The proof-level CLI contract is now recorded in this bundle, and the first live runtime path implements the prep plus stage-1 subset of that contract.
 - The first local tooling path is now selected and installed as `pypdfium2` + `Pillow` + `opencv-python` + `pytesseract` + local Tesseract OCR.
-- A stack-level smoke test has been executed successfully, but no full runtime proof has been executed yet.
+- A stack-level smoke test has been executed successfully, and the first live runtime seam has also passed the one-page and full-packet stage-1 proof runs.
 
 ## Assumptions And Unknowns
 
 - Assumption: the first honest proof remains local-only and batch-oriented.
 - Assumption: rasterized PNG pages will be the downstream working surface even though PDF remains the ingress format.
-- Assumption: the operator-observed Schopenhauer packet is sufficient to evaluate tooling choices before any executable proof is attempted.
+- Assumption: the operator-observed Schopenhauer packet is sufficient to evaluate tooling choices and to anchor the first executable proof runs.
 - Assumption: the Schopenhauer packet is a useful proxy for the broader scanned-novel object class, but not a license for book-specific runtime behavior.
 - Unknown: whether the installed stack remains sufficient once runtime wiring reaches structural reconstruction, annotation interpretation, and full-packet evidence retention.
 - Unknown: whether the first runtime path should split spreads before visual extraction or treat spread handling inside the visual extraction stage.
@@ -270,8 +305,8 @@ Selection implication for Seam 3: the first local stack is now installed and min
 
 ## Affected and Non-Affected Surfaces
 
-- Affected: the first active implementation bundle contents; the proving contract for the first runtime slice; the future ordering of runtime work; the planning use of the existing PDF, PNG, and markdown root surfaces.
-- Non-affected: project-spec invariants; runtime code and tests; provider integrations; storage systems; deployment surfaces; auth; downstream consumers; archived implementation history.
+- Affected: the first active implementation bundle contents; the proving contract for the first runtime slice; the repo-root runtime package; the future ordering of runtime work; the planning use of the existing PDF, PNG, and markdown root surfaces.
+- Non-affected: project-spec invariants; tests; provider integrations; storage systems; deployment surfaces; auth; downstream consumers; archived implementation history.
 
 ## Completion Rule
 

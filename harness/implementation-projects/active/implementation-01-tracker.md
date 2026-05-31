@@ -3,8 +3,8 @@
 ## Status
 
 - State: active
-- Current seam: Seam 3, tooling and runtime selection
-- Next action: define and implement the first runtime seam using the installed stack, starting with PDF-to-PNG prep, spread handling, and OCR/evidence capture against the full qualified packet
+- Current seam: Seam 3, first live runtime slice implemented and validated
+- Next action: choose the next approved seam from spread handling, stage-2 reconstruction, or richer stage-1 evidence, without weakening the generic scanned-novel control surface
 
 ## Work Log
 
@@ -19,6 +19,10 @@
 | 2026-05-30 | Implementer | Bound Seam 3 to an object-class control-surface rule. | The plan now treats the Schopenhauer packet as a proxy for the broader scanned-novel class and explicitly rejects book-specific heuristics as an admissible default. | Scout local tooling options against reusable controls rather than sample-specific tuning. |
 | 2026-05-30 | Implementer | Recorded the first local tooling scout for Seam 3. | Python and `numpy` are available, but no runnable rasterization, OCR, or image-processing stack is installed yet; no grounded reason exists to narrow below the full qualified packet. | Choose the first local installation target before claiming a viable stack. |
 | 2026-05-30 | Implementer | Installed and smoke-tested the approved stack-1 tooling path. | `pypdfium2`, `Pillow`, `opencv-python`, `pytesseract`, and local Tesseract OCR are now installed; rasterization succeeded on PDF pages 24 and 28, and OCR on the clean anchor page succeeded. | Use the installed stack to define the first runtime implementation seam. |
+| 2026-05-30 | Implementer | Implemented the first live runtime seam as a repo-root Python package with a single `stage1-visual-extract` subcommand. | `python -m novel_and_hilite_extraction stage1-visual-extract` now parses generic page selections, rasterizes selected PDF pages to retained PNGs, discovers Tesseract explicitly, runs OCR over each generated PNG, and writes retained prep plus stage-1 manifests without claiming stages 2-4 or final artifacts. | Validate the seam on the clean anchor page first, then on the full qualified packet. |
+| 2026-05-30 | Implementer | Validated the live stage-1 seam against the real proof sample. | One-page anchor run on PDF page 28 passed and created `prep/pdf-to-png/pdf-page-0028.png`, `prep/pdf-to-png/manifest.json`, `stage-1-visual-extraction/pdf-page-0028.txt`, and `stage-1-visual-extraction/manifest.json`; full-packet run on PDF pages 20-28 passed with 9 PNGs, 9 OCR text files, and both manifests present. Both runs selected `C:\Program Files\Tesseract-OCR\tesseract.exe`. | Hold the current seam truthful at stage-1-only scope and choose the next approved extension point. |
+| 2026-05-30 | Implementer | Repaired the prep-versus-stage evidence boundary and generalized the per-user Tesseract fallback path. | The prep manifest now records only rasterization evidence, stage-1 manifest records OCR evidence separately, and Tesseract known-install discovery now derives the user-local path from the active environment instead of a hard-coded username. | Re-run the one-page focused validation and reviewer check on the same seam. |
+| 2026-05-31 | Implementer | Re-validated the repaired seam on both the clean anchor page and the full qualified packet. | Post-repair one-page run on PDF page 28 passed with prep and stage-1 evidence separated correctly, and a post-repair full-packet run on PDF pages 20-28 passed with 9 PNGs, 9 OCR text files, prep manifests free of OCR paths, and stage-1 manifests retaining OCR text paths. | Keep the seam truthful at stage-1-only scope and select the next extension point from spread handling, richer stage-1 evidence, or stage-2 reconstruction. |
 
 ## Seam Status
 
@@ -26,7 +30,7 @@
 | --- | --- | --- | --- | --- |
 | Seam 1: Proof contract and staging expectations | Implementer | complete | The plan now contains the proof-level CLI contract, required inputs and outputs, explicit prep-versus-stage evidence layout, proof success and failure conditions, and acceptance probe mapping. | Closed without choosing tooling, stable API wording, or final artifact schema wording. |
 | Seam 2: Sample qualification gate | Implementer | complete | The plan now contains a formal sample qualification gate, the selected Schopenhauer packet span, and the supplied coverage anchors and uncertainty cases, all marked as operator-observed evidence only. | Closed without claiming runtime proof, tooling validation, or stable API shape. |
-| Seam 3: Tooling and runtime selection | Implementer | current | Tooling choice is now admissible because Seams 1 and 2 exist and the qualified packet can anchor evaluation of local-only CLI batch options. | Default first proof scope is the full qualified packet unless tooling evaluation yields a grounded reason to narrow it. The approved stack-1 path is now installed and minimally validated, and candidate runtime behavior must still expose reusable controls for the scanned-novel class rather than Schopenhauer-specific behavior. |
+| Seam 3: Tooling and runtime selection | Implementer | current | The approved stack-1 path is now materialized as `python -m novel_and_hilite_extraction stage1-visual-extract`, and post-repair validation passed on both the one-page anchor run on PDF page 28 and the full qualified packet on PDF pages 20-28 with retained prep and stage-1 evidence correctly separated. | Seam 3 remains current because only the first live runtime slice exists so far; later stages, spread handling refinements, and final markdown artifacts remain future work. |
 
 ## Blockers
 
