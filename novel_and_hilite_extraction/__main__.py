@@ -49,6 +49,16 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     stage1_parser.add_argument(
+        "--spread-rotation-deg",
+        type=int,
+        choices=(0, 90, 180, 270),
+        help=(
+            "Clockwise degrees applied to each rasterized spread before derived surface "
+            "cropping and OCR. When omitted, two-page-spreads default to 90 and other "
+            "layouts default to 0. Pass 0 to disable rotation explicitly."
+        ),
+    )
+    stage1_parser.add_argument(
         "--dpi",
         type=int,
         default=300,
@@ -129,6 +139,7 @@ def main(argv: list[str] | None = None) -> int:
                 run_label=args.run_label,
                 scan_layout=args.scan_layout,
                 spread_handling=args.spread_handling,
+                spread_rotation_deg=args.spread_rotation_deg,
                 dpi=args.dpi,
                 outer_crop_px=args.outer_crop_px,
                 gutter_crop_px=args.gutter_crop_px,

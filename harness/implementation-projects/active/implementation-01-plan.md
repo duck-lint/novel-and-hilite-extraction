@@ -6,9 +6,9 @@ Carry the first active implementation bundle through the current live runtime se
 
 Delivery posture: implement only local CLI prep plus stage-1 visual extraction and Stage 2 structural reconstruction against explicit PDF and page-range inputs, retain inspectable prep, OCR, logical-page, and block-unit evidence, and leave stages 3-4 plus the two markdown terminal artifacts as future work under the same proof contract.
 
-The current source shape is a scanned PDF rendered as two-page spreads from a facedown photocopier workflow. Implementation-01 records that shape as an input constraint for the proof contract without yet choosing a split, crop, or rectification strategy.
+The current source shape is a scanned PDF rendered as two-page spreads from a facedown photocopier workflow. The anchor packet also includes rotated spread rasters, so Implementation-01 must preserve the raw raster evidence while allowing explicit operator-declared rectification before spread splitting and OCR instead of assuming the raw width midpoint is already semantically page-aligned.
 
-Observed evidence: there is now a live stage-1 runtime, a live spread-aware Stage 2 runtime at page-unit scope, and a bounded Stage 2 block-unit extension grounded only in retained OCR layout evidence. The configured roots already distinguish PDF source, PNG working files, and markdown outputs.
+Observed evidence: there is now a live stage-1 runtime, a live spread-aware Stage 2 runtime at page-unit scope, and a bounded Stage 2 block-unit extension grounded only in retained OCR layout evidence. The configured roots already distinguish PDF source, PNG working files, and markdown outputs, and the PDF-page-28 anchor proved that splitting the unrectified raw spread at width midpoint produces sideways partial-page crops and garbage OCR instead of intent-satisfying whole-page evidence.
 
 The supplied Schopenhauer packet is now the qualified implementation-01 sample by operator-observed evidence: PDF pages 20-28 and book pages 47-61 inside the configured whole-book PDF. That closes sample qualification for planning purposes while leaving tooling choice, runtime execution, and any narrower first-run sub-range deferred.
 
@@ -16,10 +16,10 @@ The supplied Schopenhauer packet is now the qualified implementation-01 sample b
 
 - Invariant constraints: preserve two independent markdown terminal artifacts; preserve the four explicit stages of visual extraction, structural reconstruction, annotation interpretation, and artifact synthesis; preserve canonical non-normalization by default; preserve typed provenance and visible uncertainty; preserve local-only first proof, scanned annotated pages first, CLI batch first, and chapter-contiguous reconstruction first.
 - Task constraints: keep claims at prep plus stage-1 visual extraction and Stage 2 structural reconstruction from retained Stage 1 OCR evidence; treat PDF as the input format; make PDF-to-PNG conversion explicit; keep controls generic for the scanned-novel object class; do not parse repo config in runtime code; do not claim stages 3-4 or final artifacts exist.
-- Constraint conflicts: the active proof contract still names later stages and terminal artifacts as required future behavior, while the live implementation stops at Stage 2; later seams must preserve that distinction. Stage 3 remains blocked as an immediate next move until Stage 1 retains explicit marking observables.
-- Allowed transformation types: maintain the active plan/tracker pair; implement and deepen the repo-root runtime package through Stage 2 only; preserve `page-units` support while adding bounded `block-units`; retain prep, Stage 1, and Stage 2 evidence; use explicit Tesseract discovery with fallback; record validation evidence and affected surfaces truthfully.
-- Affected surfaces: the implementation-01 active bundle contents; `novel_and_hilite_extraction/__main__.py`; `novel_and_hilite_extraction/stage1.py`; `novel_and_hilite_extraction/stage2.py`; retained temp run roots used for runtime validation; the stated proving contract for the live runtime slices.
-- Non-affected surfaces: tests; artifact schema detail; provider selection; storage; auth; deployment; downstream integrations; archived bundles; project-spec invariants.
+- Constraint conflicts: the active proof contract still names later stages and terminal artifacts as required future behavior, while the live implementation stops at Stage 2; later seams must preserve that distinction. Stage 3 remains blocked as an immediate next move until Stage 1 retains explicit marking observables. Older Stage 1 and Stage 2 validation roots created before spread rectification remain mechanically useful as evidence of prior behavior, but they are stale for intent-level claims about upright whole-page OCR on rotated spreads.
+- Allowed transformation types: maintain the active plan/tracker pair; repair Stage 1 orientation handling at the root cause through explicit reusable controls; preserve the existing `page-units` and bounded `block-units` Stage 2 behaviors without editing Stage 2 unless compatibility breaks; retain raw prep evidence plus any rectified spread evidence needed for truthful lineage; use explicit Tesseract discovery with fallback; record validation evidence and affected surfaces truthfully.
+- Affected surfaces: the implementation-01 active bundle contents; `novel_and_hilite_extraction/__main__.py`; `novel_and_hilite_extraction/stage1.py`; retained temp run roots used for rotated-anchor validation; the stated proving contract for the live runtime slices.
+- Non-affected surfaces: `novel_and_hilite_extraction/stage2.py` unless Stage 1 compatibility forces a change; tests; artifact schema detail; provider selection; storage; auth; deployment; downstream integrations; archived bundles; project-spec invariants.
 - Admissibility checks:
    - pass: the plan records the selected packet as the Schopenhauer PDF pages 20-28 and book pages 47-61 by operator-observed evidence only.
    - pass: the plan keeps tooling choice deferred until after the proof contract and qualified sample gate exist.
@@ -239,6 +239,7 @@ python -m novel_and_hilite_extraction stage1-visual-extract \
    --run-label <short-run-id> \
    --scan-layout <operator-declared-layout> \
    --spread-handling <auto|keep-whole|split-halves> \
+   [--spread-rotation-deg <0|90|180|270>] \
    --dpi <render-dpi> \
    [--outer-crop-px <pixels>] \
    [--gutter-crop-px <pixels>] \
@@ -262,10 +263,11 @@ Current behavior boundary:
 - The Stage 1 command writes prep evidence under `prep/pdf-to-png/` and `prep/derived-surfaces/`, and writes stage-1 OCR evidence under `stage-1-visual-extraction/`, with manifests in those locations.
 - Page selection stays explicit through `--page-range`, including simple comma and inclusive range combinations.
 - Spread handling stays explicit through `--spread-handling`, with `auto` mapping declared `two-page-spreads` inputs to `split-halves` and other layouts to `keep-whole`.
+- Spread rectification stays explicit through `--spread-rotation-deg`, interpreted as clockwise degrees applied before derived-surface cropping and OCR. When the flag is omitted, `two-page-spreads` default to 90 and other layouts default to 0; operators can still force no rotation with `--spread-rotation-deg 0`. The raw rasterized spread PNG is always preserved, and a rectified spread PNG is retained when rotation is non-zero so crop lineage stays truthful.
 - Crop controls stay explicit through `--outer-crop-px`, `--gutter-crop-px`, `--top-crop-px`, and `--bottom-crop-px`.
 - Tesseract resolution is explicit and reusable: honor `--tesseract-cmd` first, then PATH if available, then the fixed known-install order discovered during tooling validation.
-- Prep manifests record source-spread entries and derived-surface entries separately. Stage-1 manifests record OCR entries per derived surface with lineage back to the source spread.
-- The stage-1 manifest records the selected Tesseract path, selection rule, candidate probes, selected pages, declared scan layout, resolved spread handling, per-surface evidence paths, and OCR confidence summaries.
+- Prep manifests record raw source-spread entries, rectified source-spread entries when present, and derived-surface entries separately. Stage-1 manifests record OCR entries per derived surface with lineage back to the actual source spread used for cropping while still retaining the raw spread path.
+- The stage-1 manifest records the selected Tesseract path, selection rule, candidate probes, selected pages, declared scan layout, resolved spread handling, requested and applied spread rotation, per-surface evidence paths, and OCR confidence summaries.
 - `python -m novel_and_hilite_extraction stage2-structural-reconstruct --reconstruction-scope page-units` validates the retained spread-aware Stage 1 manifest, orders logical pages by `source_pdf_page` then `surface_order`, writes one retained logical-page text file per ordered page, and records Stage 1 lineage plus OCR confidence in `stage-2-structural-reconstruction/manifest.json`.
 - `python -m novel_and_hilite_extraction stage2-structural-reconstruct --reconstruction-scope block-units` preserves the logical page ordering step, then segments each logical page deterministically into consecutive non-empty OCR line groups separated by blank lines, writes retained `block-unit-*.txt` evidence files in global order, and records block-to-page-to-surface lineage plus inherited uncertainty in the Stage 2 manifest.
 - The Stage 2 manifest states the claim boundary explicitly: block reconstruction is layout-derived only, and cross-page paragraph continuation, hierarchy, chapter boundaries, annotation interpretation, and final markdown artifacts are not implemented in this seam.
@@ -292,16 +294,20 @@ Current behavior boundary:
 
 Validation evidence for the first Stage 2 slice:
 
-- Anchor validation against the existing page-28 split run root passed with exit code 0 and produced 2 logical-page text files plus a manifest.
-- Full-packet validation against the existing qualified packet run root passed with exit code 0 and produced 18 logical-page text files plus a manifest.
-- Anchor block-unit validation against the retained page-28 split run root passed with exit code 0 and produced 2 logical-page text files, 16 `block-unit-*.txt` files, and a manifest recording `reconstruction_scope` `block-units`.
-- Full-packet block-unit validation against the retained qualified packet run root passed with exit code 0 and produced 18 logical-page text files, 244 `block-unit-*.txt` files, and a manifest recording `block_unit_count` 244.
+- Pre-rectification anchor validation against the existing page-28 split run root passed mechanically with exit code 0 and produced 2 logical-page text files plus a manifest, but it is stale for intent-level claims because the upstream OCR surfaces were malformed.
+- Pre-rectification full-packet validation against the existing qualified packet run root passed mechanically with exit code 0 and produced 18 logical-page text files plus a manifest, but it is stale for intent-level claims because the upstream OCR surfaces were malformed.
+- Pre-rectification anchor block-unit validation against the retained page-28 split run root passed mechanically with exit code 0 and produced 2 logical-page text files, 16 `block-unit-*.txt` files, and a manifest recording `reconstruction_scope` `block-units`, but it is stale for intent-level claims because the upstream OCR surfaces were malformed.
+- Pre-rectification full-packet block-unit validation against the retained qualified packet run root passed mechanically with exit code 0 and produced 18 logical-page text files, 244 `block-unit-*.txt` files, and a manifest recording `block_unit_count` 244, but it is stale for intent-level claims because the upstream OCR surfaces were malformed.
 
 Validation status for the live slice:
 
-- Passed: one-page anchor run on PDF page 28 using the clean spread anchor, with 1 source spread PNG, 2 derived surface PNGs, and 2 OCR text files.
-- Passed: full qualified-packet run on PDF pages 20-28, with 9 source spread PNGs, 18 derived surface PNGs, and 18 OCR text files.
-- Evidence created in both runs: retained source-spread PNGs in `prep/pdf-to-png/`, retained derived-surface PNGs in `prep/derived-surfaces/`, retained OCR text files in `stage-1-visual-extraction/`, plus `manifest.json` in each evidence directory.
+- Passed: fresh rotated-anchor run on PDF page 28 with `--spread-rotation-deg 90`, with 1 raw source spread PNG, 1 retained rectified spread PNG, 2 upright whole-page derived surface PNGs, and 2 readable OCR text files.
+- Passed: narrow Stage 2 `page-units` compatibility rerun on that corrected anchor root, producing 2 logical-page text files and a Stage 2 manifest whose lineage points to the rectified source spread.
+- Passed: fresh corrected full-packet run on PDF pages 20-28 with `--spread-rotation-deg 90`, with 9 raw source spread PNGs, 9 retained rectified spread PNGs, 18 upright whole-page derived surface PNGs, and 18 OCR text files.
+- Passed: corrected full-packet Stage 2 rerun on that rectified root, producing 18 logical pages for `page-units`, then 18 logical pages plus 146 `block-unit-*.txt` files for `block-units`.
+- Passed: fresh rotated-anchor run on PDF page 28 with no explicit rotation flag, using the layout default of 90 for `two-page-spreads`, with 1 raw source spread PNG, 1 retained rectified spread PNG, 2 upright whole-page derived surface PNGs, and readable OCR.
+- Passed: fresh rotated-anchor opt-out run on PDF page 28 with `--spread-rotation-deg 0`, recording applied rotation 0 and emitting no rectified spread PNG so printed-page-style inputs can stay unrotated when required.
+- Stale for intent-level claims: older pre-rectification anchor and full-packet run roots remain evidence of the prior malformed width-midpoint behavior and should not be cited as proof of correct rotated-spread handling.
 
 ## Non-Goals
 

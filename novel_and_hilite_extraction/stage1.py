@@ -56,6 +56,7 @@ def run_stage1_visual_extract(
     run_label: str,
     scan_layout: str,
     spread_handling: str,
+    spread_rotation_deg: int | None,
     dpi: int,
     outer_crop_px: int,
     gutter_crop_px: int,
@@ -74,6 +75,7 @@ def run_stage1_visual_extract(
     discovery = discover_tesseract(tesseract_cmd)
     pytesseract.pytesseract.tesseract_cmd = discovery["selected_path"]
     resolved_spread_handling = _resolve_spread_handling(scan_layout, spread_handling)
+    resolved_spread_rotation_deg = _resolve_spread_rotation_deg(scan_layout, spread_rotation_deg)
 
     run_root = output_root / run_label
     prep_dir = run_root / "prep" / "pdf-to-png"
@@ -87,6 +89,10 @@ def run_stage1_visual_extract(
         "scan_layout": scan_layout,
         "requested_spread_handling": spread_handling,
         "resolved_spread_handling": resolved_spread_handling,
+        "requested_spread_rotation_deg": spread_rotation_deg,
+        "applied_spread_rotation_deg": resolved_spread_rotation_deg,
+        "spread_rotation_defaulted": spread_rotation_deg is None,
+        "spread_rotation_direction": "clockwise",
         "dpi": dpi,
         "outer_crop_px": outer_crop_px,
         "gutter_crop_px": gutter_crop_px,
@@ -112,19 +118,35 @@ def run_stage1_visual_extract(
             page = document[page_number - 1]
             try:
                 bitmap = page.render(scale=dpi / 72.0)
-                image = bitmap.to_pil()
+                raw_image = bitmap.to_pil()
             finally:
                 if hasattr(page, "close"):
                     page.close()
 
             png_name = f"pdf-page-{page_number:0{width}d}.png"
-            png_path = prep_dir / png_name
-            image.save(png_path, format="PNG")
+            raw_png_path = prep_dir / png_name
+            raw_image.save(raw_png_path, format="PNG")
+
+            rectified_png_path = None
+            source_image = raw_image
+            if resolved_spread_rotation_deg:
+                source_image = raw_image.rotate(-resolved_spread_rotation_deg, expand=True)
+                rectified_png_path = prep_dir / f"pdf-page-{page_number:0{width}d}-rectified.png"
+                source_image.save(rectified_png_path, format="PNG")
+
+            raw_png_relative_path = _relative_path(raw_png_path, run_root)
+            source_png_path = rectified_png_path or raw_png_path
+            source_png_relative_path = _relative_path(source_png_path, run_root)
+            rectified_png_relative_path = (
+                _relative_path(rectified_png_path, run_root)
+                if rectified_png_path is not None
+                else None
+            )
 
             surface_specs = _build_surface_specs(
                 pdf_page=page_number,
-                page_width=image.width,
-                page_height=image.height,
+                page_width=source_image.width,
+                page_height=source_image.height,
                 width_padding=width,
                 spread_handling=resolved_spread_handling,
                 outer_crop_px=outer_crop_px,
@@ -136,15 +158,26 @@ def run_stage1_visual_extract(
             prep_entries.append(
                 {
                     "pdf_page": page_number,
-                    "png_path": _relative_path(png_path, run_root),
-                    "image_size_px": {"width": image.width, "height": image.height},
+                    "png_path": raw_png_relative_path,
+                    "raw_spread_png_path": raw_png_relative_path,
+                    "rectified_spread_png_path": rectified_png_relative_path,
+                    "source_spread_png_path": source_png_relative_path,
+                    "image_size_px": {"width": raw_image.width, "height": raw_image.height},
+                    "source_image_size_px": {
+                        "width": source_image.width,
+                        "height": source_image.height,
+                    },
+                    "requested_spread_rotation_deg": spread_rotation_deg,
+                    "applied_spread_rotation_deg": resolved_spread_rotation_deg,
+                    "spread_rotation_defaulted": spread_rotation_deg is None,
+                    "spread_rotation_direction": "clockwise",
                     "derived_surface_ids": [surface_spec["surface_id"] for surface_spec in surface_specs],
                 }
             )
 
             for surface_spec in surface_specs:
                 crop_box = surface_spec["crop_box_px"]
-                derived_image = image.crop(
+                derived_image = source_image.crop(
                     (
                         crop_box["left"],
                         crop_box["top"],
@@ -165,8 +198,13 @@ def run_stage1_visual_extract(
                         "source_pdf_page": page_number,
                         "surface_role": surface_spec["surface_role"],
                         "surface_order": surface_spec["surface_order"],
-                        "source_spread_png_path": _relative_path(png_path, run_root),
+                        "raw_spread_png_path": raw_png_relative_path,
+                        "rectified_spread_png_path": rectified_png_relative_path,
+                        "source_spread_png_path": source_png_relative_path,
                         "derived_png_path": _relative_path(derived_png_path, run_root),
+                        "source_spread_rotation_deg": resolved_spread_rotation_deg,
+                        "source_spread_rotation_defaulted": spread_rotation_deg is None,
+                        "source_spread_rotation_direction": "clockwise",
                         "operation": surface_spec["operation"],
                         "crop_box_px": crop_box,
                         "image_size_px": {
@@ -182,9 +220,14 @@ def run_stage1_visual_extract(
                         "source_pdf_page": page_number,
                         "surface_role": surface_spec["surface_role"],
                         "surface_order": surface_spec["surface_order"],
-                        "source_spread_png_path": _relative_path(png_path, run_root),
+                        "raw_spread_png_path": raw_png_relative_path,
+                        "rectified_spread_png_path": rectified_png_relative_path,
+                        "source_spread_png_path": source_png_relative_path,
                         "derived_png_path": _relative_path(derived_png_path, run_root),
                         "ocr_text_path": _relative_path(text_path, run_root),
+                        "source_spread_rotation_deg": resolved_spread_rotation_deg,
+                        "source_spread_rotation_defaulted": spread_rotation_deg is None,
+                        "source_spread_rotation_direction": "clockwise",
                         "operation": surface_spec["operation"],
                         "crop_box_px": crop_box,
                         "image_size_px": {
@@ -239,6 +282,7 @@ def run_stage1_visual_extract(
         "selected_pages": selected_pages,
         "derived_surface_count": len(stage1_entries),
         "spread_handling": resolved_spread_handling,
+        "applied_spread_rotation_deg": resolved_spread_rotation_deg,
         "tesseract_path": discovery["selected_path"],
     }
 
@@ -322,6 +366,18 @@ def _resolve_spread_handling(scan_layout: str, requested: str) -> str:
         return "split-halves"
 
     return "keep-whole"
+
+
+def _resolve_spread_rotation_deg(scan_layout: str, requested: int | None) -> int:
+    if requested is not None:
+        if requested not in {0, 90, 180, 270}:
+            raise CliError("--spread-rotation-deg must be one of 0, 90, 180, or 270")
+        return requested
+
+    if scan_layout.strip().lower() == "two-page-spreads":
+        return 90
+
+    return 0
 
 
 def _run_ocr(image: object) -> dict[str, object]:
