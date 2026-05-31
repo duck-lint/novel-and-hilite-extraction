@@ -1,26 +1,30 @@
 # Implementation 02 Plan
 
+Closeout staging note: this archive copy was created during implementation-02 closeout, but the active bundle files could not be removed after repeated delete attempts. Until state-folder cleanup succeeds, the active copy remains canonical.
+
 ## Intent
 
 Open a narrow successor bundle whose only purpose is to broaden Stage 3 semantics on corrected roots beyond the current clean highlight-or-underline local-context slice. Keep the delivery posture conservative: preserve explicit unresolved carry-forward, keep the current clean promotion boundary honest, and leave Stage 4 artifact synthesis entirely closed.
 
 Broader semantics in this bundle means deterministic semantic differentiation over existing corrected-root observables, not forced confident text-span interpretation. Enclosure-like, ambiguous, no-anchor, marginalia, bleed-through, and clean-surface cases may gain richer classification or explicit unresolved semantics only if that behavior can be justified directly from current Stage 1 and Stage 3 evidence without weakening provenance or visible uncertainty rules.
 
+Task-authority update for the current seam: keep Stage 4 closed, but authorize a quarantined highlight-artifact formatting probe if further proof is desired. That probe is not a normal Stage 4 opening and does not authorize artifact-schema finalization. Its only purpose is to test whether current Stage 3 outputs can be rendered honestly into a highlight-artifact shape without invented excerpt text, invented provenance semantics, silent normalization, or over-interpretation of unresolved entries.
+
 ## Admissibility Report
 
 - Invariant constraints: preserve the two independent markdown terminal artifacts and the four explicit stages; preserve local-only CLI posture; preserve provenance typing and visible uncertainty; preserve corrected-root authority for intent-level claims; preserve the distinction between direct extraction, structural inference, semantic expansion, and unresolved carry-forward.
 - Task constraints: implementation-01 is archived before implementation-02 becomes the live bundle; scope implementation-02 only to broader Stage 3 semantics on corrected roots; keep Stage 4 closed; do not reopen `novel_and_hilite_extraction/stage1.py`, `novel_and_hilite_extraction/stage2.py`, `harness/open-decisions.md`, or the project-spec templates unless compatibility breaks.
-- Constraint conflicts: broader semantics may pressure the current Stage 3 manifest and reason-code boundary; if the next semantic slice cannot be expressed as deterministic behavior over current observables without changing a contract category, stop at an approval gate instead of planning around it. The current corrected-root baseline of 122 total interpretations with only 5 resolved and 117 unresolved is still too sparse to make Stage 4 the strongest next proof boundary.
-- Allowed transformation types: maintain the implementation-02 plan and tracker; inspect corrected-root unresolved populations; broaden Stage 3 semantic handling only through deterministic use of current observables; add corrected-root validation evidence and wording alignment needed to describe the broadened semantic boundary truthfully.
-- Affected surfaces: `harness/implementation-projects/active/implementation-02-plan.md`; `harness/implementation-projects/active/implementation-02-tracker.md`; `novel_and_hilite_extraction/stage3.py`; corrected-root Stage 3 validation probes and their retained manifests under the local temp workspace.
-- Non-affected surfaces: `novel_and_hilite_extraction/stage1.py`; `novel_and_hilite_extraction/stage2.py`; Stage 4 artifact synthesis; schema, API, auth, storage, deployment, or billing surfaces; `harness/open-decisions.md`; `harness/project-spec/template-project-spec.md`; `harness/project-spec/template-governance-primitives.md`.
+- Constraint conflicts: broader semantics may pressure the current Stage 3 manifest and reason-code boundary; if the next semantic slice cannot be expressed as deterministic behavior over current observables without changing a contract category, stop at an approval gate instead of planning around it. The current corrected-root baseline of 122 total interpretations with only 5 resolved and 117 unresolved is still too sparse to make Stage 4 the strongest next proof boundary. A normal Stage 4 opening would also overclaim artifact readiness because many unresolved entries still lack honest row-ready text and Stage 3 does not yet carry explicit artifact-facing schema semantics.
+- Allowed transformation types: maintain the implementation-02 plan and tracker; inspect corrected-root unresolved populations; broaden Stage 3 semantic handling only through deterministic use of current observables; add corrected-root validation evidence and wording alignment needed to describe the broadened semantic boundary truthfully; and, if further proof is desired, run a quarantined highlight-artifact formatting probe that renders current Stage 3 outputs without invented excerpt text or inferred provenance semantics for unresolved entries.
+- Affected surfaces: `harness/implementation-projects/active/implementation-02-plan.md`; `harness/implementation-projects/active/implementation-02-tracker.md`; probe-only formatting surfaces under a separately named readiness-test seam if the quarantined formatter is opened; corrected-root Stage 3 validation probes and retained manifests under the local temp workspace.
+- Non-affected surfaces: `novel_and_hilite_extraction/stage1.py`; `novel_and_hilite_extraction/stage2.py`; `novel_and_hilite_extraction/stage3.py` until the quarantined probe is explicitly opened under this updated authority; Stage 4 artifact synthesis as a normal implementation seam; schema, API, auth, storage, deployment, or billing surfaces; `harness/open-decisions.md`; `harness/project-spec/template-project-spec.md`; `harness/project-spec/template-governance-primitives.md`.
 - Admissibility checks:
   - pass: implementation-01 is archived before implementation-02 becomes the live bundle.
   - pass: corrected roots remain the only proof surfaces for intent-level claims in this bundle.
   - pass: the existing five clean corrected-root resolutions must remain present or improve without regression.
   - pass: ambiguity, enclosure-like, no-anchor, marginalia, bleed-through, and clean-surface anchors must not be forced into confident text-span interpretation.
   - pass: no Stage 4 claim appears in this bundle.
-- Stop conditions: stop on any need for schema, API, auth, storage, deployment, billing, or project-intent amendment; stop if a proposal depends on stale pre-rectification roots; stop if the only way forward is to force ambiguous, enclosure-like, marginalia, or no-anchor cases into confident interpretation; stop before any Stage 4 artifact synthesis work begins.
+- Stop conditions: stop on any need for schema, API, auth, storage, deployment, billing, or project-intent amendment; stop if a proposal depends on stale pre-rectification roots; stop if the only way forward is to force ambiguous, enclosure-like, marginalia, or no-anchor cases into confident interpretation; stop if a formatting probe invents excerpt text, invented provenance semantics, or transformed row meaning for unresolved entries; stop if a formatting probe is framed as a normal Stage 4 opening or stable artifact contract.
 
 ## Planned Seams
 
@@ -36,12 +40,16 @@ Broader semantics in this bundle means deterministic semantic differentiation ov
 4. Wording and contract alignment if needed.
    If the broadened Stage 3 semantic boundary changes the documented claim shape, reconcile plan and tracker wording in the same turn without opening Stage 4.
 
+5. Quarantined highlight-artifact formatting probe, only if further proof is desired.
+   Render current Stage 3 outputs into a throwaway highlight-artifact shape using only fields already present in the payload, preserve blank commentary space, and refuse invented excerpt text or inferred provenance semantics for unresolved entries. This seam remains a readiness test only and does not authorize a normal Stage 4 opening or stable artifact schema.
+
 ## Non-Goals
 
 - Do not open Stage 4 artifact synthesis.
 - Do not shape or define either markdown terminal artifact.
 - Do not expand Stage 1 or Stage 2 beyond compatibility repair.
 - Do not force confident resolution of enclosure-like, ambiguous, no-anchor, marginalia, bleed-through, or clean-surface cases.
+- Do not treat a quarantined formatting probe as a normal Stage 4 implementation or stable highlight-artifact contract.
 - Do not cross schema, API, auth, storage, deployment, billing, destructive-operation, broad-architecture, or project-intent boundaries.
 
 ## Acceptance Criteria
@@ -52,6 +60,7 @@ Broader semantics in this bundle means deterministic semantic differentiation ov
 - The known ambiguity anchor still does not become a forced enclosure-like or confident text-span interpretation.
 - Bleed-through, marginalia, no-anchor, and clean-surface anchors stay non-promoted unless deterministic support justifies a richer but still uncertainty-preserving semantic status.
 - Stage 4 remains unopened and unclaimed.
+- If a quarantined formatting probe is opened, it must render representative resolved and unresolved rows without invented excerpt text, invented provenance semantics, or silent normalization.
 
 ## Current Repo Runtime State
 
@@ -65,6 +74,7 @@ Broader semantics in this bundle means deterministic semantic differentiation ov
 - A fourth fresh corrected-root rerun at `C:\Users\madis\AppData\Local\Temp\novel-stage3-enclosure-split-29a8368c-46fb-447f-881c-41ab71072dc3\anchor-suite-stage1` preserved the same 122 total interpretations with 5 resolved and 117 unresolved while replacing the prior 5-entry `enclosure-like-unresolved` bucket with 4 `enclosure-like-unknown-mark-unresolved` and 1 `enclosure-like-underline-unresolved` entries, again without promoting additional candidates or resolving any bracket-or-box interpretation.
 - A fifth fresh corrected-root rerun at `C:\Users\madis\AppData\Local\Temp\novel-stage3-low-confidence-split-8e87d4ad-d0d1-49b7-b781-55276ee146eb\anchor-suite-stage1` preserved the same 122 total interpretations with 5 resolved and 117 unresolved while replacing the prior 19-entry `low-confidence-unresolved` bucket with a 19-entry `below-stage1-confidence-threshold-unresolved` bucket and showing zero `missing-stage1-detection-confidence-unresolved` cases on the current proof surface.
 - Implementation-01 is archived as complete at bounded Stage 3 scope, so implementation-02 is now the sole live bundle.
+- A readiness assessment now concludes that Stage 3 is stable and truthful, but not yet artifact-complete enough for a normal Stage 4 opening because only resolved entries receive `evidence_text_path`, many unresolved entries still lack honest row-ready text, and the repo has not yet proven artifact-facing renderability under the current contract.
 
 ## Assumptions And Unknowns
 
@@ -78,13 +88,14 @@ Broader semantics in this bundle means deterministic semantic differentiation ov
 - Partially resolved: the current manifest shape also supports a narrower low-confidence split without changing the payload contract; on the present corrected-root proof surface, that split reveals only below-threshold cases and zero missing-confidence cases.
 - Unknown: whether broader semantics beyond unresolved-family differentiation need a new payload category or another approval-gated contract change.
 - Unknown: whether the current Stage 3 manifest shape is sufficient for the desired broader semantics.
-- Unknown: whether the next governing semantic tension is now marginalia, a deeper ambiguity contract beyond the present mark-form split, or whether family-level refinement is close to diminishing returns under the current Stage 3 contract.
+- Unknown: whether a quarantined highlight-artifact formatter can render representative resolved, ambiguous, marginalia, and textless unresolved entries honestly enough to justify a later constrained Stage 4 experiment.
+- Unknown: whether family-level refinement is now close to diminishing returns under the current Stage 3 contract.
 - Unknown: whether one successor bundle is enough to make Stage 3 strong enough for later Stage 4 authorization.
 
 ## Affected and Non-Affected Surfaces
 
-- Affected: `harness/implementation-projects/active/implementation-02-plan.md`; `harness/implementation-projects/active/implementation-02-tracker.md`; `novel_and_hilite_extraction/stage3.py`; corrected-root Stage 3 validation probes and manifests.
-- Non-affected: `novel_and_hilite_extraction/stage1.py`; `novel_and_hilite_extraction/stage2.py`; `harness/open-decisions.md`; `harness/project-spec/template-project-spec.md`; `harness/project-spec/template-governance-primitives.md`; Stage 4 artifact synthesis surfaces.
+- Affected: `harness/implementation-projects/active/implementation-02-plan.md`; `harness/implementation-projects/active/implementation-02-tracker.md`; probe-only formatting surfaces if the quarantined serializer is opened under this updated authority; corrected-root Stage 3 validation probes and manifests.
+- Non-affected: `novel_and_hilite_extraction/stage1.py`; `novel_and_hilite_extraction/stage2.py`; `novel_and_hilite_extraction/stage3.py` until the quarantined formatter is explicitly opened; `harness/open-decisions.md`; `harness/project-spec/template-project-spec.md`; `harness/project-spec/template-governance-primitives.md`; all normal Stage 4 artifact synthesis surfaces.
 
 ## Completion Rule
 
