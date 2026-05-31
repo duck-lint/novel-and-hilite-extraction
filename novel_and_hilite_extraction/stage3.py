@@ -15,6 +15,42 @@ _MIN_CONFIDENT_DETECTION = 0.6
 _CONTEXT_LINE_RADIUS = 1
 
 
+def _derive_interpretation_kind(
+    normalized_class: str, unresolved_reason_codes: list[str]
+) -> str:
+    if not unresolved_reason_codes:
+        return f"{normalized_class}-local-context"
+
+    reason_codes = set(unresolved_reason_codes)
+    if "marginalia-not-resolved-in-this-seam" in reason_codes:
+        return "marginalia-unresolved"
+    if (
+        "enclosure-mark-not-resolved-in-this-seam" in reason_codes
+        or "enclosure-like-relation-not-resolved-in-this-seam" in reason_codes
+    ):
+        return "enclosure-like-unresolved"
+    if "ambiguous-anchor-evidence" in reason_codes:
+        return "ambiguous-anchor-unresolved"
+    if (
+        "missing-anchor-evidence" in reason_codes
+        or "unresolved-anchor-reference" in reason_codes
+        or "empty-anchor-text" in reason_codes
+    ):
+        return "no-anchor-evidence-unresolved"
+    if (
+        "below-stage1-confidence-threshold" in reason_codes
+        or "missing-stage1-detection-confidence" in reason_codes
+    ):
+        return "low-confidence-unresolved"
+    if "unknown-mark-form" in reason_codes:
+        return "unknown-mark-unresolved"
+    if "normalized-class-not-resolved-in-this-seam" in reason_codes:
+        return "normalized-class-unresolved"
+    if "stage1-uncertainty-present" in reason_codes:
+        return "stage1-uncertainty-unresolved"
+    return "unresolved"
+
+
 def run_stage3_annotation_interpret(run_root: Path) -> dict[str, object]:
     if not run_root.is_dir():
         raise CliError(f"run root does not exist: {run_root}")
@@ -245,8 +281,9 @@ def _build_interpretation_record(
 
     unresolved_reason_codes = _ordered_unique_strings(unresolved_reason_codes)
     interpretation_status = "resolved" if not unresolved_reason_codes else "unresolved"
-    interpretation_kind = (
-        f"{normalized_class}-local-context" if interpretation_status == "resolved" else "unresolved"
+    interpretation_kind = _derive_interpretation_kind(
+        normalized_class=normalized_class,
+        unresolved_reason_codes=unresolved_reason_codes,
     )
 
     return {
