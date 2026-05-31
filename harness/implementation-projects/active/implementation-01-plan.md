@@ -2,30 +2,30 @@
 
 ## Intent
 
-Carry the first active implementation bundle through the first live runtime seam using the approved local stack-1 path, while keeping the proof contract honest about stage-1-only scope.
+Carry the first active implementation bundle through the current live runtime seams using the approved local stack-1 path, while keeping the proof contract honest about the present implementation boundary: prep plus Stage 1 visual extraction, and Stage 2 structural reconstruction limited to ordered logical page units and bounded ordered block units.
 
-Delivery posture: implement only local CLI prep plus stage-1 visual extraction against explicit PDF and page-range inputs, retain inspectable prep and OCR evidence, and leave stages 2-4 plus the two markdown terminal artifacts as future work under the same proof contract.
+Delivery posture: implement only local CLI prep plus stage-1 visual extraction and Stage 2 structural reconstruction against explicit PDF and page-range inputs, retain inspectable prep, OCR, logical-page, and block-unit evidence, and leave stages 3-4 plus the two markdown terminal artifacts as future work under the same proof contract.
 
 The current source shape is a scanned PDF rendered as two-page spreads from a facedown photocopier workflow. Implementation-01 records that shape as an input constraint for the proof contract without yet choosing a split, crop, or rectification strategy.
 
-Observed evidence: there is now a minimal stage-1 runtime, and the configured roots already distinguish PDF source, PNG working files, and markdown outputs.
+Observed evidence: there is now a live stage-1 runtime, a live spread-aware Stage 2 runtime at page-unit scope, and a bounded Stage 2 block-unit extension grounded only in retained OCR layout evidence. The configured roots already distinguish PDF source, PNG working files, and markdown outputs.
 
 The supplied Schopenhauer packet is now the qualified implementation-01 sample by operator-observed evidence: PDF pages 20-28 and book pages 47-61 inside the configured whole-book PDF. That closes sample qualification for planning purposes while leaving tooling choice, runtime execution, and any narrower first-run sub-range deferred.
 
 ## Admissibility Report
 
 - Invariant constraints: preserve two independent markdown terminal artifacts; preserve the four explicit stages of visual extraction, structural reconstruction, annotation interpretation, and artifact synthesis; preserve canonical non-normalization by default; preserve typed provenance and visible uncertainty; preserve local-only first proof, scanned annotated pages first, CLI batch first, and chapter-contiguous reconstruction first.
-- Task constraints: implement only the first live runtime seam; keep claims at prep plus stage-1 visual extraction with OCR evidence; treat PDF as the input format; make PDF-to-PNG conversion explicit; keep controls generic for the scanned-novel object class; do not parse repo config in runtime code; do not claim stages 2-4 or final artifacts exist.
-- Constraint conflicts: none at bundle opening. Future conflict exists if a tooling choice cannot satisfy local-only execution, stage inspectability, or the chapter-contiguous proving scope.
-- Allowed transformation types: maintain the active plan/tracker pair; implement a repo-root runtime package for the first stage-1 seam; retain prep and stage-1 evidence; use explicit Tesseract discovery with fallback; record validation evidence and affected surfaces truthfully.
-- Affected surfaces: the implementation-01 active bundle contents; the stated proving contract for the first runtime slice; the planning use of the existing PDF, PNG, and markdown root surfaces; future runtime sequencing expectations.
-- Non-affected surfaces: runtime code; tests; artifact schema detail; provider selection; storage; auth; deployment; downstream integrations; archived bundles; project-spec invariants.
+- Task constraints: keep claims at prep plus stage-1 visual extraction and Stage 2 structural reconstruction from retained Stage 1 OCR evidence; treat PDF as the input format; make PDF-to-PNG conversion explicit; keep controls generic for the scanned-novel object class; do not parse repo config in runtime code; do not claim stages 3-4 or final artifacts exist.
+- Constraint conflicts: the active proof contract still names later stages and terminal artifacts as required future behavior, while the live implementation stops at Stage 2; later seams must preserve that distinction. Stage 3 remains blocked as an immediate next move until Stage 1 retains explicit marking observables.
+- Allowed transformation types: maintain the active plan/tracker pair; implement and deepen the repo-root runtime package through Stage 2 only; preserve `page-units` support while adding bounded `block-units`; retain prep, Stage 1, and Stage 2 evidence; use explicit Tesseract discovery with fallback; record validation evidence and affected surfaces truthfully.
+- Affected surfaces: the implementation-01 active bundle contents; `novel_and_hilite_extraction/__main__.py`; `novel_and_hilite_extraction/stage1.py`; `novel_and_hilite_extraction/stage2.py`; retained temp run roots used for runtime validation; the stated proving contract for the live runtime slices.
+- Non-affected surfaces: tests; artifact schema detail; provider selection; storage; auth; deployment; downstream integrations; archived bundles; project-spec invariants.
 - Admissibility checks:
    - pass: the plan records the selected packet as the Schopenhauer PDF pages 20-28 and book pages 47-61 by operator-observed evidence only.
    - pass: the plan keeps tooling choice deferred until after the proof contract and qualified sample gate exist.
   - pass: the first runtime slice explicitly includes PDF-to-PNG conversion before visual extraction.
   - pass: all four stages and both terminal artifacts remain explicit.
-   - pass: the live seam claims only prep and stage-1 OCR evidence, not stages 2-4 or final markdown artifacts.
+   - pass: the live seams now claim only prep, stage-1 OCR evidence, and Stage 2 logical-page plus bounded block-unit reconstruction, not stages 3-4 or final markdown artifacts.
    - pass: no stable API, schema, deployment, or final-artifact claim is implied by the implemented stage-1 seam.
   - pass: no provenance, uncertainty, or canonical-fidelity rule is weakened.
 - Stop conditions: stop if the seam would silently amend the two-artifact contract, the four-stage model, provenance or uncertainty requirements, local-only posture, or chapter-contiguous proof scope; stop if the sample gate wording implies runtime success, chooses tooling, locks a stable API, or invents page facts not supplied by the operator.
@@ -43,6 +43,7 @@ The supplied Schopenhauer packet is now the qualified implementation-01 sample b
 
 4. Stage-2 structural reconstruction on spread-aware outputs
    Only after prep and Stage 1 can show explicit derived page surfaces from declared two-page spreads with retained lineage, open structural reconstruction on top of those derived surfaces. Preserve page association, ordering, and uncertainty lineage without claiming final markdown artifacts yet.
+   This Stage 2 slice is now realized as `python -m novel_and_hilite_extraction stage2-structural-reconstruct`, with `page-units` preserving ordered logical page reconstruction from Stage 1 spread-aware OCR entries and `block-units` deepening that seam to ordered block reconstruction from blank-line-separated OCR line groups. The bounded block seam keeps page order first, then intra-page block order, and does not yet claim cross-page paragraph continuation, hierarchy, chapter boundaries, annotation interpretation, or final markdown artifacts.
 
 ## CLI Proof Contract
 
@@ -226,9 +227,9 @@ Provisional stack ranking for follow-up selection, assuming local-only execution
 
 Selection implication for Seam 3: the first local stack is now installed, minimally validated, and materialized as the first live runtime seam. The next truthful move is to extend the proof incrementally from this stage-1 base, not to claim that the full extraction pipeline already exists.
 
-## Implemented Runtime Slice
+## Implemented Runtime Slices
 
-Implemented command shape:
+Implemented Stage 1 command shape:
 
 ```text
 python -m novel_and_hilite_extraction stage1-visual-extract \
@@ -246,17 +247,55 @@ python -m novel_and_hilite_extraction stage1-visual-extract \
    [--tesseract-cmd <path-or-command>]
 ```
 
+Implemented Stage 2 command shape:
+
+```text
+python -m novel_and_hilite_extraction stage2-structural-reconstruct \
+   --run-root <existing-stage1-run-root> \
+   --reconstruction-scope <page-units|block-units>
+```
+
 Current behavior boundary:
 
-- The implemented runtime is stage-1 only. It rasterizes selected PDF pages into retained source-spread PNG prep evidence, derives page-aware surfaces from each spread through explicit reusable controls, and runs OCR over each derived surface.
-- The command writes prep evidence under `prep/pdf-to-png/` and `prep/derived-surfaces/`, and writes stage-1 OCR evidence under `stage-1-visual-extraction/`, with manifests in those locations.
+- The implemented runtime now covers prep plus Stage 1 visual extraction and bounded Stage 2 structural reconstruction only.
+- `python -m novel_and_hilite_extraction stage1-visual-extract` rasterizes selected PDF pages into retained source-spread PNG prep evidence, derives page-aware surfaces from each spread through explicit reusable controls, and runs OCR over each derived surface.
+- The Stage 1 command writes prep evidence under `prep/pdf-to-png/` and `prep/derived-surfaces/`, and writes stage-1 OCR evidence under `stage-1-visual-extraction/`, with manifests in those locations.
 - Page selection stays explicit through `--page-range`, including simple comma and inclusive range combinations.
 - Spread handling stays explicit through `--spread-handling`, with `auto` mapping declared `two-page-spreads` inputs to `split-halves` and other layouts to `keep-whole`.
 - Crop controls stay explicit through `--outer-crop-px`, `--gutter-crop-px`, `--top-crop-px`, and `--bottom-crop-px`.
 - Tesseract resolution is explicit and reusable: honor `--tesseract-cmd` first, then PATH if available, then the fixed known-install order discovered during tooling validation.
 - Prep manifests record source-spread entries and derived-surface entries separately. Stage-1 manifests record OCR entries per derived surface with lineage back to the source spread.
 - The stage-1 manifest records the selected Tesseract path, selection rule, candidate probes, selected pages, declared scan layout, resolved spread handling, per-surface evidence paths, and OCR confidence summaries.
-- The stage-1 manifest states the claim boundary explicitly: later stages and final markdown artifacts are not implemented in this seam.
+- `python -m novel_and_hilite_extraction stage2-structural-reconstruct --reconstruction-scope page-units` validates the retained spread-aware Stage 1 manifest, orders logical pages by `source_pdf_page` then `surface_order`, writes one retained logical-page text file per ordered page, and records Stage 1 lineage plus OCR confidence in `stage-2-structural-reconstruction/manifest.json`.
+- `python -m novel_and_hilite_extraction stage2-structural-reconstruct --reconstruction-scope block-units` preserves the logical page ordering step, then segments each logical page deterministically into consecutive non-empty OCR line groups separated by blank lines, writes retained `block-unit-*.txt` evidence files in global order, and records block-to-page-to-surface lineage plus inherited uncertainty in the Stage 2 manifest.
+- The Stage 2 manifest states the claim boundary explicitly: block reconstruction is layout-derived only, and cross-page paragraph continuation, hierarchy, chapter boundaries, annotation interpretation, and final markdown artifacts are not implemented in this seam.
+
+## Implemented Stage 2 Slice
+
+Implemented command shape:
+
+```text
+python -m novel_and_hilite_extraction stage2-structural-reconstruct \
+   --run-root <path-to-existing-run-root> \
+   [--reconstruction-scope <page-units|block-units>]
+```
+
+Current behavior boundary:
+
+- The implemented Stage 2 slice consumes an existing `stage-1-visual-extraction/manifest.json` from a prior run root and requires spread-aware `split-halves` page surfaces with retained OCR text paths.
+- The command validates that each Stage 1 page-unit entry still resolves to an existing source spread PNG, derived surface PNG, and OCR text file beneath the same run root.
+- `--reconstruction-scope page-units` reconstructs ordered logical page units only by sorting explicit Stage 1 observables, `source_pdf_page` ascending and then `surface_order` ascending, while rejecting duplicate ordering keys.
+- `--reconstruction-scope block-units` preserves that logical page ordering step, then segments each logical page deterministically into consecutive non-empty OCR line groups separated by blank lines.
+- The command writes retained Stage 2 evidence under `stage-2-structural-reconstruction/` as one `logical-page-XXXX.txt` file per ordered page unit, plus `block-unit-XXXX.txt` evidence files when `block-units` is selected, together with a Stage 2 manifest.
+- The Stage 2 manifest carries forward per-logical-page and per-block lineage to `source_pdf_page`, `surface_id`, `source_spread_png_path`, `derived_png_path`, and the Stage 1 OCR text path, together with upstream OCR confidence summaries and inherited uncertainty flags.
+- The Stage 2 manifest states the claim boundary explicitly: the `block-units` seam is layout-derived only and does not yet model cross-page paragraph continuation, hierarchy, chapter boundaries, annotation interpretation, or final markdown artifacts.
+
+Validation evidence for the first Stage 2 slice:
+
+- Anchor validation against the existing page-28 split run root passed with exit code 0 and produced 2 logical-page text files plus a manifest.
+- Full-packet validation against the existing qualified packet run root passed with exit code 0 and produced 18 logical-page text files plus a manifest.
+- Anchor block-unit validation against the retained page-28 split run root passed with exit code 0 and produced 2 logical-page text files, 16 `block-unit-*.txt` files, and a manifest recording `reconstruction_scope` `block-units`.
+- Full-packet block-unit validation against the retained qualified packet run root passed with exit code 0 and produced 18 logical-page text files, 244 `block-unit-*.txt` files, and a manifest recording `block_unit_count` 244.
 
 Validation status for the live slice:
 
@@ -266,7 +305,7 @@ Validation status for the live slice:
 
 ## Non-Goals
 
-- Do not implement stages 2-4 or either final markdown artifact yet.
+- Do not implement later Stage 2 seams beyond bounded block-unit reconstruction, stages 3-4, or either final markdown artifact yet.
 - Do not define final markdown field wording or artifact schema details yet.
 - Do not parse repo config in runtime code or bake in Schopenhauer-specific heuristics.
 - Do not add packaging, deployment, auth, storage, or stable public API commitments.
@@ -278,29 +317,31 @@ Validation status for the live slice:
 - The active bundle records the four stages and two independent markdown artifacts as fixed expectations for future implementation.
 - The plan contains a proof-level CLI contract that keeps prep evidence separate from the four runtime stages, without choosing tooling or final artifact field wording.
 - The plan contains a formal sample qualification gate that records the selected Schopenhauer packet as PDF pages 20-28 and book pages 47-61, with role coverage grounded in operator-observed evidence.
-- The plan keeps explicit that only stage-1 runtime validation has executed so far, while the full four-stage proof and both markdown terminal artifacts remain unimplemented.
+- The plan keeps explicit that live runtime validation now covers Stage 1 and bounded Stage 2 only, while the full four-stage proof and both markdown terminal artifacts remain unimplemented.
 - The plan defines Seam 3 as object-class tooling evaluation and rejects Schopenhauer-specific heuristics as an admissible default.
 - The plan records that the approved local-first stack is now installed and minimally validated against the qualified packet, and that no grounded reason exists yet to narrow below the full qualified packet.
 - The active bundle orders future work so tooling choice occurs only after proof contract and sample-gate seams are defined.
 - The repo root now contains a runnable `python -m novel_and_hilite_extraction stage1-visual-extract` surface for prep plus stage-1 OCR evidence only.
+- The repo root now also contains a runnable `python -m novel_and_hilite_extraction stage2-structural-reconstruct` surface for ordered logical pages plus bounded ordered block units from retained Stage 1 OCR evidence.
 - The implemented seam resolves Tesseract explicitly by override, PATH, then fixed known-install order, and records the selected path in retained manifests.
 - The live seam has passed the required one-page anchor run and the full qualified-packet run with retained prep and stage-1 evidence.
 - The live seam now operationalizes declared two-page spreads into explicit derived page surfaces with retained lineage and OCR confidence summaries.
-- Stage 2 is now admissible as the next seam because spread-aware prep and stage-1 outputs exist and have been validated on both the anchor and full qualified packet.
+- Stage 2 now exists as a live seam at ordered logical-page plus bounded ordered block-unit scope because spread-aware prep and Stage 1 outputs have been validated on both the anchor and full qualified packet.
 - Approval gates remain unchecked because this bundle still does not cross schema, API, auth, storage, deployment, destructive, or broad-architecture boundaries.
 
 ## Current Repo Runtime State
 
 - A repo-root package now provides `python -m novel_and_hilite_extraction stage1-visual-extract`.
-- The runtime currently implements explicit page-range parsing, spread-aware derived surface generation, reusable Tesseract discovery, and stage-1 OCR evidence manifests.
-- Stages 2-4 and both final markdown artifacts do not exist yet.
+- A repo-root package now also provides `python -m novel_and_hilite_extraction stage2-structural-reconstruct`.
+- The runtime currently implements explicit page-range parsing, spread-aware derived surface generation, reusable Tesseract discovery, stage-1 OCR evidence manifests, ordered logical-page reconstruction, and bounded ordered block reconstruction from retained OCR layout evidence.
+- Stages 3-4 and both final markdown artifacts do not exist yet.
 - The configured roots already distinguish PDF source, PNG working files, and markdown outputs.
 - The current PDF source is expected to contain two-page scanned spreads rather than clean single-page captures.
 - PDF is the existing configured source surface.
 - The qualified implementation-01 packet is the Schopenhauer PDF pages 20-28 and book pages 47-61, recorded from operator-observed evidence only.
-- The proof-level CLI contract is now recorded in this bundle, and the first live runtime path implements the prep plus stage-1 subset of that contract.
+- The proof-level CLI contract is now recorded in this bundle, and the live runtime currently implements the prep plus Stage 1 subset and a bounded Stage 2 subset of that contract.
 - The first local tooling path is now selected and installed as `pypdfium2` + `Pillow` + `opencv-python` + `pytesseract` + local Tesseract OCR.
-- A stack-level smoke test has been executed successfully, and the first live runtime seam has also passed the one-page and full-packet spread-aware stage-1 proof runs.
+- A stack-level smoke test has been executed successfully, and the live runtime seams have also passed the one-page and full-packet spread-aware Stage 1 proof runs plus anchor and full-packet Stage 2 block-unit validation.
 
 ## Assumptions And Unknowns
 

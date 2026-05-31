@@ -5,13 +5,11 @@ import json
 import sys
 from pathlib import Path
 
-from .stage1 import CliError, run_stage1_visual_extract
-
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="python -m novel_and_hilite_extraction",
-        description="Local proof CLI for stage-1 visual extraction evidence.",
+        description="Local proof CLI for retained stage evidence.",
     )
     subparsers = parser.add_subparsers(dest="command")
     subparsers.required = True
@@ -85,6 +83,22 @@ def build_parser() -> argparse.ArgumentParser:
         help="Explicit Tesseract executable path or command name.",
     )
 
+    stage2_parser = subparsers.add_parser(
+        "stage2-structural-reconstruct",
+        help="Reconstruct ordered logical page or block units from existing Stage 1 evidence.",
+    )
+    stage2_parser.add_argument(
+        "--run-root",
+        required=True,
+        help="Existing run root that already contains stage-1-visual-extraction output.",
+    )
+    stage2_parser.add_argument(
+        "--reconstruction-scope",
+        choices=("page-units", "block-units"),
+        default="page-units",
+        help="Current Stage 2 scope. Page-units and bounded block-units are implemented in this seam.",
+    )
+
     return parser
 
 
@@ -92,36 +106,45 @@ def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
 
-    if args.command != "stage1-visual-extract":
-        parser.error(f"unsupported command: {args.command}")
-
-    if args.dpi <= 0:
-        parser.error("--dpi must be a positive integer")
-
-    for flag_name in (
-        "outer_crop_px",
-        "gutter_crop_px",
-        "top_crop_px",
-        "bottom_crop_px",
-    ):
-        if getattr(args, flag_name) < 0:
-            parser.error(f"--{flag_name.replace('_', '-')} must be zero or greater")
-
     try:
-        result = run_stage1_visual_extract(
-            pdf_input=Path(args.pdf_input),
-            page_range_spec=args.page_range,
-            output_root=Path(args.output_root),
-            run_label=args.run_label,
-            scan_layout=args.scan_layout,
-            spread_handling=args.spread_handling,
-            dpi=args.dpi,
-            outer_crop_px=args.outer_crop_px,
-            gutter_crop_px=args.gutter_crop_px,
-            top_crop_px=args.top_crop_px,
-            bottom_crop_px=args.bottom_crop_px,
-            tesseract_cmd=args.tesseract_cmd,
-        )
+        if args.command == "stage1-visual-extract":
+            if args.dpi <= 0:
+                parser.error("--dpi must be a positive integer")
+
+            for flag_name in (
+                "outer_crop_px",
+                "gutter_crop_px",
+                "top_crop_px",
+                "bottom_crop_px",
+            ):
+                if getattr(args, flag_name) < 0:
+                    parser.error(f"--{flag_name.replace('_', '-')} must be zero or greater")
+
+            from .stage1 import CliError, run_stage1_visual_extract
+
+            result = run_stage1_visual_extract(
+                pdf_input=Path(args.pdf_input),
+                page_range_spec=args.page_range,
+                output_root=Path(args.output_root),
+                run_label=args.run_label,
+                scan_layout=args.scan_layout,
+                spread_handling=args.spread_handling,
+                dpi=args.dpi,
+                outer_crop_px=args.outer_crop_px,
+                gutter_crop_px=args.gutter_crop_px,
+                top_crop_px=args.top_crop_px,
+                bottom_crop_px=args.bottom_crop_px,
+                tesseract_cmd=args.tesseract_cmd,
+            )
+        elif args.command == "stage2-structural-reconstruct":
+            from .stage2 import CliError, run_stage2_structural_reconstruct
+
+            result = run_stage2_structural_reconstruct(
+                run_root=Path(args.run_root),
+                reconstruction_scope=args.reconstruction_scope,
+            )
+        else:
+            parser.error(f"unsupported command: {args.command}")
     except CliError as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 2
