@@ -55,7 +55,12 @@ def run_stage1_visual_extract(
     output_root: Path,
     run_label: str,
     scan_layout: str,
+    spread_handling: str,
     dpi: int,
+    outer_crop_px: int,
+    gutter_crop_px: int,
+    top_crop_px: int,
+    bottom_crop_px: int,
     tesseract_cmd: str | None,
 ) -> dict[str, object]:
     if not pdf_input.is_file():
@@ -68,56 +73,132 @@ def run_stage1_visual_extract(
     selected_pages = parse_page_range(page_range_spec)
     discovery = discover_tesseract(tesseract_cmd)
     pytesseract.pytesseract.tesseract_cmd = discovery["selected_path"]
+    resolved_spread_handling = _resolve_spread_handling(scan_layout, spread_handling)
 
     run_root = output_root / run_label
     prep_dir = run_root / "prep" / "pdf-to-png"
+    derived_dir = run_root / "prep" / "derived-surfaces"
     stage1_dir = run_root / "stage-1-visual-extraction"
     prep_dir.mkdir(parents=True, exist_ok=False)
+    derived_dir.mkdir(parents=True, exist_ok=False)
     stage1_dir.mkdir(parents=True, exist_ok=False)
 
+    preprocess_controls = {
+        "scan_layout": scan_layout,
+        "requested_spread_handling": spread_handling,
+        "resolved_spread_handling": resolved_spread_handling,
+        "dpi": dpi,
+        "outer_crop_px": outer_crop_px,
+        "gutter_crop_px": gutter_crop_px,
+        "top_crop_px": top_crop_px,
+        "bottom_crop_px": bottom_crop_px,
+    }
+
     document = pdfium.PdfDocument(str(pdf_input))
-    page_count = len(document)
-    for page_number in selected_pages:
-        if page_number < 1 or page_number > page_count:
-            raise CliError(
-                f"selected page {page_number} is outside the PDF page count of {page_count}"
+    try:
+        page_count = len(document)
+        for page_number in selected_pages:
+            if page_number < 1 or page_number > page_count:
+                raise CliError(
+                    f"selected page {page_number} is outside the PDF page count of {page_count}"
+                )
+
+        width = max(4, len(str(page_count)))
+        prep_entries: list[dict[str, object]] = []
+        derived_surface_entries: list[dict[str, object]] = []
+        stage1_entries: list[dict[str, object]] = []
+
+        for page_number in selected_pages:
+            page = document[page_number - 1]
+            try:
+                bitmap = page.render(scale=dpi / 72.0)
+                image = bitmap.to_pil()
+            finally:
+                if hasattr(page, "close"):
+                    page.close()
+
+            png_name = f"pdf-page-{page_number:0{width}d}.png"
+            png_path = prep_dir / png_name
+            image.save(png_path, format="PNG")
+
+            surface_specs = _build_surface_specs(
+                pdf_page=page_number,
+                page_width=image.width,
+                page_height=image.height,
+                width_padding=width,
+                spread_handling=resolved_spread_handling,
+                outer_crop_px=outer_crop_px,
+                gutter_crop_px=gutter_crop_px,
+                top_crop_px=top_crop_px,
+                bottom_crop_px=bottom_crop_px,
             )
 
-    width = max(4, len(str(page_count)))
-    prep_entries: list[dict[str, object]] = []
-    stage1_entries: list[dict[str, object]] = []
+            prep_entries.append(
+                {
+                    "pdf_page": page_number,
+                    "png_path": _relative_path(png_path, run_root),
+                    "image_size_px": {"width": image.width, "height": image.height},
+                    "derived_surface_ids": [surface_spec["surface_id"] for surface_spec in surface_specs],
+                }
+            )
 
-    for page_number in selected_pages:
-        page = document[page_number - 1]
-        bitmap = page.render(scale=dpi / 72.0)
-        image = bitmap.to_pil()
+            for surface_spec in surface_specs:
+                crop_box = surface_spec["crop_box_px"]
+                derived_image = image.crop(
+                    (
+                        crop_box["left"],
+                        crop_box["top"],
+                        crop_box["right"],
+                        crop_box["bottom"],
+                    )
+                )
+                derived_png_path = derived_dir / f"{surface_spec['surface_id']}.png"
+                derived_image.save(derived_png_path, format="PNG")
 
-        png_name = f"pdf-page-{page_number:0{width}d}.png"
-        png_path = prep_dir / png_name
-        image.save(png_path, format="PNG")
+                ocr_result = _run_ocr(derived_image)
+                text_path = stage1_dir / f"{surface_spec['surface_id']}.txt"
+                text_path.write_text(ocr_result["text"], encoding="utf-8")
 
-        text = pytesseract.image_to_string(image)
-        text_name = f"pdf-page-{page_number:0{width}d}.txt"
-        text_path = stage1_dir / text_name
-        text_path.write_text(text, encoding="utf-8")
+                derived_surface_entries.append(
+                    {
+                        "surface_id": surface_spec["surface_id"],
+                        "source_pdf_page": page_number,
+                        "surface_role": surface_spec["surface_role"],
+                        "surface_order": surface_spec["surface_order"],
+                        "source_spread_png_path": _relative_path(png_path, run_root),
+                        "derived_png_path": _relative_path(derived_png_path, run_root),
+                        "operation": surface_spec["operation"],
+                        "crop_box_px": crop_box,
+                        "image_size_px": {
+                            "width": derived_image.width,
+                            "height": derived_image.height,
+                        },
+                    }
+                )
 
-        prep_entries.append(
-            {
-                "pdf_page": page_number,
-                "png_path": _relative_path(png_path, run_root),
-                "image_size_px": {"width": image.width, "height": image.height},
-            }
-        )
-
-        stage1_entries.append(
-            {
-                "pdf_page": page_number,
-                "source_png_path": _relative_path(png_path, run_root),
-                "ocr_text_path": _relative_path(text_path, run_root),
-                "image_size_px": {"width": image.width, "height": image.height},
-                "ocr_text_length": len(text),
-            }
-        )
+                stage1_entries.append(
+                    {
+                        "surface_id": surface_spec["surface_id"],
+                        "source_pdf_page": page_number,
+                        "surface_role": surface_spec["surface_role"],
+                        "surface_order": surface_spec["surface_order"],
+                        "source_spread_png_path": _relative_path(png_path, run_root),
+                        "derived_png_path": _relative_path(derived_png_path, run_root),
+                        "ocr_text_path": _relative_path(text_path, run_root),
+                        "operation": surface_spec["operation"],
+                        "crop_box_px": crop_box,
+                        "image_size_px": {
+                            "width": derived_image.width,
+                            "height": derived_image.height,
+                        },
+                        "ocr_text_length": len(ocr_result["text"]),
+                        "ocr_confidence_mean": ocr_result["confidence_mean"],
+                        "ocr_confidence_sample_count": ocr_result["confidence_sample_count"],
+                    }
+                )
+    finally:
+        if hasattr(document, "close"):
+            document.close()
 
     prep_manifest = {
         "command": "stage1-visual-extract",
@@ -126,9 +207,11 @@ def run_stage1_visual_extract(
         "page_range": page_range_spec,
         "selected_pages": selected_pages,
         "scan_layout": scan_layout,
-        "dpi": dpi,
+        "spread_handling": resolved_spread_handling,
+        "preprocess_controls": preprocess_controls,
         "generated_at_utc": _utc_now(),
         "rendered_pages": prep_entries,
+        "derived_surfaces": derived_surface_entries,
     }
     _write_json(prep_dir / "manifest.json", prep_manifest)
 
@@ -141,7 +224,8 @@ def run_stage1_visual_extract(
         "page_range": page_range_spec,
         "selected_pages": selected_pages,
         "scan_layout": scan_layout,
-        "dpi": dpi,
+        "spread_handling": resolved_spread_handling,
+        "preprocess_controls": preprocess_controls,
         "generated_at_utc": _utc_now(),
         "tesseract": discovery,
         "pages": stage1_entries,
@@ -153,7 +237,141 @@ def run_stage1_visual_extract(
         "prep_manifest": str(prep_dir / "manifest.json"),
         "stage1_manifest": str(stage1_dir / "manifest.json"),
         "selected_pages": selected_pages,
+        "derived_surface_count": len(stage1_entries),
+        "spread_handling": resolved_spread_handling,
         "tesseract_path": discovery["selected_path"],
+    }
+
+
+def _build_surface_specs(
+    pdf_page: int,
+    page_width: int,
+    page_height: int,
+    width_padding: int,
+    spread_handling: str,
+    outer_crop_px: int,
+    gutter_crop_px: int,
+    top_crop_px: int,
+    bottom_crop_px: int,
+) -> list[dict[str, object]]:
+    if spread_handling == "keep-whole":
+        crop_box = _validated_crop_box(
+            left=outer_crop_px,
+            top=top_crop_px,
+            right=page_width - outer_crop_px,
+            bottom=page_height - bottom_crop_px,
+            page_width=page_width,
+            page_height=page_height,
+            surface_label=f"PDF page {pdf_page}",
+        )
+        return [
+            {
+                "surface_id": f"pdf-page-{pdf_page:0{width_padding}d}-whole",
+                "surface_role": "whole-spread",
+                "surface_order": 0,
+                "operation": "keep-whole",
+                "crop_box_px": crop_box,
+            }
+        ]
+
+    if spread_handling != "split-halves":
+        raise CliError(f"unsupported spread handling mode: {spread_handling}")
+
+    midpoint = page_width // 2
+    left_box = _validated_crop_box(
+        left=outer_crop_px,
+        top=top_crop_px,
+        right=midpoint - gutter_crop_px,
+        bottom=page_height - bottom_crop_px,
+        page_width=page_width,
+        page_height=page_height,
+        surface_label=f"PDF page {pdf_page} left surface",
+    )
+    right_box = _validated_crop_box(
+        left=midpoint + gutter_crop_px,
+        top=top_crop_px,
+        right=page_width - outer_crop_px,
+        bottom=page_height - bottom_crop_px,
+        page_width=page_width,
+        page_height=page_height,
+        surface_label=f"PDF page {pdf_page} right surface",
+    )
+    return [
+        {
+            "surface_id": f"pdf-page-{pdf_page:0{width_padding}d}-left",
+            "surface_role": "left-page",
+            "surface_order": 0,
+            "operation": "split-halves",
+            "crop_box_px": left_box,
+        },
+        {
+            "surface_id": f"pdf-page-{pdf_page:0{width_padding}d}-right",
+            "surface_role": "right-page",
+            "surface_order": 1,
+            "operation": "split-halves",
+            "crop_box_px": right_box,
+        },
+    ]
+
+
+def _resolve_spread_handling(scan_layout: str, requested: str) -> str:
+    if requested != "auto":
+        return requested
+
+    if scan_layout.strip().lower() == "two-page-spreads":
+        return "split-halves"
+
+    return "keep-whole"
+
+
+def _run_ocr(image: object) -> dict[str, object]:
+    text = pytesseract.image_to_string(image)
+    confidence_mean = None
+    confidence_sample_count = 0
+
+    try:
+        ocr_data = pytesseract.image_to_data(image, output_type=pytesseract.Output.DICT)
+        confidences = []
+        for raw_confidence in ocr_data.get("conf", []):
+            try:
+                confidence = float(raw_confidence)
+            except (TypeError, ValueError):
+                continue
+            if confidence >= 0:
+                confidences.append(confidence)
+
+        if confidences:
+            confidence_sample_count = len(confidences)
+            confidence_mean = round(sum(confidences) / confidence_sample_count, 2)
+    except pytesseract.TesseractError:
+        confidence_mean = None
+        confidence_sample_count = 0
+
+    return {
+        "text": text,
+        "confidence_mean": confidence_mean,
+        "confidence_sample_count": confidence_sample_count,
+    }
+
+
+def _validated_crop_box(
+    left: int,
+    top: int,
+    right: int,
+    bottom: int,
+    page_width: int,
+    page_height: int,
+    surface_label: str,
+) -> dict[str, int]:
+    if left < 0 or top < 0 or right > page_width or bottom > page_height:
+        raise CliError(f"crop box for {surface_label} falls outside the rasterized image bounds")
+    if right <= left or bottom <= top:
+        raise CliError(f"crop box for {surface_label} is empty after applying spread controls")
+    return {
+        "left": left,
+        "top": top,
+        "right": right,
+        "bottom": bottom,
     }
 
 

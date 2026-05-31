@@ -3,8 +3,8 @@
 ## Status
 
 - State: active
-- Current seam: Seam 3, first live runtime slice implemented and validated
-- Next action: choose the next approved seam from spread handling, stage-2 reconstruction, or richer stage-1 evidence, without weakening the generic scanned-novel control surface
+- Current seam: Seam 4, stage-2 reconstruction now admissible on top of spread-aware Stage 1 outputs
+- Next action: define the first Stage 2 structural reconstruction slice on top of the validated derived page surfaces, without claiming final markdown artifacts or weakening the generic scanned-novel control surface
 
 ## Work Log
 
@@ -23,6 +23,7 @@
 | 2026-05-30 | Implementer | Validated the live stage-1 seam against the real proof sample. | One-page anchor run on PDF page 28 passed and created `prep/pdf-to-png/pdf-page-0028.png`, `prep/pdf-to-png/manifest.json`, `stage-1-visual-extraction/pdf-page-0028.txt`, and `stage-1-visual-extraction/manifest.json`; full-packet run on PDF pages 20-28 passed with 9 PNGs, 9 OCR text files, and both manifests present. Both runs selected `C:\Program Files\Tesseract-OCR\tesseract.exe`. | Hold the current seam truthful at stage-1-only scope and choose the next approved extension point. |
 | 2026-05-30 | Implementer | Repaired the prep-versus-stage evidence boundary and generalized the per-user Tesseract fallback path. | The prep manifest now records only rasterization evidence, stage-1 manifest records OCR evidence separately, and Tesseract known-install discovery now derives the user-local path from the active environment instead of a hard-coded username. | Re-run the one-page focused validation and reviewer check on the same seam. |
 | 2026-05-31 | Implementer | Re-validated the repaired seam on both the clean anchor page and the full qualified packet. | Post-repair one-page run on PDF page 28 passed with prep and stage-1 evidence separated correctly, and a post-repair full-packet run on PDF pages 20-28 passed with 9 PNGs, 9 OCR text files, prep manifests free of OCR paths, and stage-1 manifests retaining OCR text paths. | Keep the seam truthful at stage-1-only scope and select the next extension point from spread handling, richer stage-1 evidence, or stage-2 reconstruction. |
+| 2026-05-31 | Implementer | Extended Stage 1 with spread-aware derived surfaces and OCR confidence, then validated the anchor and full qualified packet again. | The runtime now turns declared two-page spreads into explicit left and right derived surfaces with retained lineage, crop metadata, and OCR confidence summaries. Anchor validation passed with 1 source spread, 2 derived surfaces, and 2 OCR texts; full-packet validation passed with 9 source spreads, 18 derived surfaces, and 18 OCR texts. | Open Stage 2 structural reconstruction on top of the validated spread-aware outputs. |
 
 ## Seam Status
 
@@ -30,7 +31,8 @@
 | --- | --- | --- | --- | --- |
 | Seam 1: Proof contract and staging expectations | Implementer | complete | The plan now contains the proof-level CLI contract, required inputs and outputs, explicit prep-versus-stage evidence layout, proof success and failure conditions, and acceptance probe mapping. | Closed without choosing tooling, stable API wording, or final artifact schema wording. |
 | Seam 2: Sample qualification gate | Implementer | complete | The plan now contains a formal sample qualification gate, the selected Schopenhauer packet span, and the supplied coverage anchors and uncertainty cases, all marked as operator-observed evidence only. | Closed without claiming runtime proof, tooling validation, or stable API shape. |
-| Seam 3: Tooling and runtime selection | Implementer | current | The approved stack-1 path is now materialized as `python -m novel_and_hilite_extraction stage1-visual-extract`, and post-repair validation passed on both the one-page anchor run on PDF page 28 and the full qualified packet on PDF pages 20-28 with retained prep and stage-1 evidence correctly separated. | Seam 3 remains current because only the first live runtime slice exists so far; later stages, spread handling refinements, and final markdown artifacts remain future work. |
+| Seam 3: Tooling and runtime selection | Implementer | complete | The approved stack-1 path is now materialized as `python -m novel_and_hilite_extraction stage1-visual-extract`, and spread-aware validation passed on both the one-page anchor run on PDF page 28 and the full qualified packet on PDF pages 20-28 with retained prep and stage-1 evidence correctly separated. | Seam 3 is complete because the first live runtime slice now handles declared two-page spreads through explicit reusable controls and retained lineage. |
+| Seam 4: Stage-2 structural reconstruction | Implementer | current | Stage 2 is now admissible because the runtime can emit validated derived page surfaces from declared two-page spreads, with retained lineage and OCR confidence summaries. | Next seam should reconstruct order and structure from those derived surfaces without yet claiming final markdown artifacts. |
 
 ## Blockers
 

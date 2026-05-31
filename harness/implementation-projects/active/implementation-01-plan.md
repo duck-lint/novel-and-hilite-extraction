@@ -41,6 +41,9 @@ The supplied Schopenhauer packet is now the qualified implementation-01 sample b
 3. Tooling and runtime selection
    Only after Seams 1 and 2 exist, choose local rasterization, OCR or vision, layout, and CLI wiring options against the recorded proof contract and sample gate. Keep provider choice subordinate to provenance, uncertainty visibility, stage inspectability, local-only execution, and a reusable control surface for the scanned-novel object class rather than Schopenhauer-specific behavior. This seam is now partially realized by the first live runtime slice: `python -m novel_and_hilite_extraction stage1-visual-extract`.
 
+4. Stage-2 structural reconstruction on spread-aware outputs
+   Only after prep and Stage 1 can show explicit derived page surfaces from declared two-page spreads with retained lineage, open structural reconstruction on top of those derived surfaces. Preserve page association, ordering, and uncertainty lineage without claiming final markdown artifacts yet.
+
 ## CLI Proof Contract
 
 Purpose statement for the first proof run: demonstrate that one local-only CLI batch run can start from a scanned chapter slice in PDF form, preserve the current two-page spread source layout as declared input context, retain inspectable evidence across prep and runtime stages, and emit two independent markdown artifacts without hiding uncertainty or normalizing away source ambiguity.
@@ -234,24 +237,32 @@ python -m novel_and_hilite_extraction stage1-visual-extract \
    --output-root <path-to-run-root> \
    --run-label <short-run-id> \
    --scan-layout <operator-declared-layout> \
+   --spread-handling <auto|keep-whole|split-halves> \
    --dpi <render-dpi> \
+   [--outer-crop-px <pixels>] \
+   [--gutter-crop-px <pixels>] \
+   [--top-crop-px <pixels>] \
+   [--bottom-crop-px <pixels>] \
    [--tesseract-cmd <path-or-command>]
 ```
 
 Current behavior boundary:
 
-- The implemented runtime is stage-1 only. It rasterizes selected PDF pages into retained PNG prep evidence and runs OCR over each generated PNG.
-- The command writes prep evidence under `prep/pdf-to-png/` and stage-1 OCR evidence under `stage-1-visual-extraction/`, with manifests in both locations.
+- The implemented runtime is stage-1 only. It rasterizes selected PDF pages into retained source-spread PNG prep evidence, derives page-aware surfaces from each spread through explicit reusable controls, and runs OCR over each derived surface.
+- The command writes prep evidence under `prep/pdf-to-png/` and `prep/derived-surfaces/`, and writes stage-1 OCR evidence under `stage-1-visual-extraction/`, with manifests in those locations.
 - Page selection stays explicit through `--page-range`, including simple comma and inclusive range combinations.
+- Spread handling stays explicit through `--spread-handling`, with `auto` mapping declared `two-page-spreads` inputs to `split-halves` and other layouts to `keep-whole`.
+- Crop controls stay explicit through `--outer-crop-px`, `--gutter-crop-px`, `--top-crop-px`, and `--bottom-crop-px`.
 - Tesseract resolution is explicit and reusable: honor `--tesseract-cmd` first, then PATH if available, then the fixed known-install order discovered during tooling validation.
-- The stage-1 manifest records the selected Tesseract path, selection rule, candidate probes, selected pages, declared scan layout, and per-page evidence paths.
+- Prep manifests record source-spread entries and derived-surface entries separately. Stage-1 manifests record OCR entries per derived surface with lineage back to the source spread.
+- The stage-1 manifest records the selected Tesseract path, selection rule, candidate probes, selected pages, declared scan layout, resolved spread handling, per-surface evidence paths, and OCR confidence summaries.
 - The stage-1 manifest states the claim boundary explicitly: later stages and final markdown artifacts are not implemented in this seam.
 
 Validation status for the live slice:
 
-- Passed: one-page anchor run on PDF page 28 using the clean spread anchor.
-- Passed: full qualified-packet run on PDF pages 20-28.
-- Evidence created in both runs: retained PNGs in `prep/pdf-to-png/`, retained OCR text files in `stage-1-visual-extraction/`, plus `manifest.json` in each of those directories.
+- Passed: one-page anchor run on PDF page 28 using the clean spread anchor, with 1 source spread PNG, 2 derived surface PNGs, and 2 OCR text files.
+- Passed: full qualified-packet run on PDF pages 20-28, with 9 source spread PNGs, 18 derived surface PNGs, and 18 OCR text files.
+- Evidence created in both runs: retained source-spread PNGs in `prep/pdf-to-png/`, retained derived-surface PNGs in `prep/derived-surfaces/`, retained OCR text files in `stage-1-visual-extraction/`, plus `manifest.json` in each evidence directory.
 
 ## Non-Goals
 
@@ -274,12 +285,14 @@ Validation status for the live slice:
 - The repo root now contains a runnable `python -m novel_and_hilite_extraction stage1-visual-extract` surface for prep plus stage-1 OCR evidence only.
 - The implemented seam resolves Tesseract explicitly by override, PATH, then fixed known-install order, and records the selected path in retained manifests.
 - The live seam has passed the required one-page anchor run and the full qualified-packet run with retained prep and stage-1 evidence.
+- The live seam now operationalizes declared two-page spreads into explicit derived page surfaces with retained lineage and OCR confidence summaries.
+- Stage 2 is now admissible as the next seam because spread-aware prep and stage-1 outputs exist and have been validated on both the anchor and full qualified packet.
 - Approval gates remain unchecked because this bundle still does not cross schema, API, auth, storage, deployment, destructive, or broad-architecture boundaries.
 
 ## Current Repo Runtime State
 
 - A repo-root package now provides `python -m novel_and_hilite_extraction stage1-visual-extract`.
-- The runtime currently implements explicit page-range parsing, PDF-to-PNG prep evidence, reusable Tesseract discovery, and stage-1 OCR evidence manifests.
+- The runtime currently implements explicit page-range parsing, spread-aware derived surface generation, reusable Tesseract discovery, and stage-1 OCR evidence manifests.
 - Stages 2-4 and both final markdown artifacts do not exist yet.
 - The configured roots already distinguish PDF source, PNG working files, and markdown outputs.
 - The current PDF source is expected to contain two-page scanned spreads rather than clean single-page captures.
@@ -287,7 +300,7 @@ Validation status for the live slice:
 - The qualified implementation-01 packet is the Schopenhauer PDF pages 20-28 and book pages 47-61, recorded from operator-observed evidence only.
 - The proof-level CLI contract is now recorded in this bundle, and the first live runtime path implements the prep plus stage-1 subset of that contract.
 - The first local tooling path is now selected and installed as `pypdfium2` + `Pillow` + `opencv-python` + `pytesseract` + local Tesseract OCR.
-- A stack-level smoke test has been executed successfully, and the first live runtime seam has also passed the one-page and full-packet stage-1 proof runs.
+- A stack-level smoke test has been executed successfully, and the first live runtime seam has also passed the one-page and full-packet spread-aware stage-1 proof runs.
 
 ## Assumptions And Unknowns
 
@@ -296,9 +309,10 @@ Validation status for the live slice:
 - Assumption: the operator-observed Schopenhauer packet is sufficient to evaluate tooling choices and to anchor the first executable proof runs.
 - Assumption: the Schopenhauer packet is a useful proxy for the broader scanned-novel object class, but not a license for book-specific runtime behavior.
 - Unknown: whether the installed stack remains sufficient once runtime wiring reaches structural reconstruction, annotation interpretation, and full-packet evidence retention.
-- Unknown: whether the first runtime path should split spreads before visual extraction or treat spread handling inside the visual extraction stage.
+- Unknown: whether the current split-halves plus crop control surface is sufficient across later novels in the same object class or whether rectification controls will become necessary.
 - Unknown: whether tooling evaluation will reveal a grounded reason to narrow the first executable proof below the full qualified packet.
 - Unknown: which minimal reusable controls are sufficient across later novels in the same object class without creating a brittle operator surface.
+- Unknown: whether Stage 2 should consume derived surfaces exactly as emitted from Stage 1 or whether it needs an additional page-association manifest layer first.
 - Unknown: whether runtime wiring should call `tesseract` from PATH or preserve an explicit configured binary path for local robustness.
 - Unknown: exact inline markdown field wording, as long as typed provenance and visible uncertainty remain mandatory.
 - Unknown: whether one qualifying sample is enough for both artifact proofs or whether runtime proof will need a small set.
