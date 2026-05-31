@@ -22,6 +22,7 @@ Do not use this file as a roadmap. Record only decisions already made, decisions
 | CD-012 | Canonical reconstruction for v1 proves chapter-contiguous reconstruction rather than only page-local output or whole-book continuity. | User decision on 2026-05-30 | Decided | Project authority | Revisit only if sample availability or runtime complexity forces a smaller proving slice. |
 | CD-013 | Early probes use a private local sample under project control. | User decision on 2026-05-30 | Decided | Project authority | Revisit only if a safe public regression corpus becomes necessary for collaboration or repeatable verification. |
 | CD-014 | The early runtime ingress format is PDF. Rasterized page images may be derived locally as an internal working surface before downstream extraction, but PDF remains the source entry surface. | User decision on 2026-05-30 | Decided | Project authority | Revisit only if early runtime proof requires a different ingress surface or the project scope expands beyond PDF-first intake. |
+| CD-015 | The first local stack to evaluate for implementation-01 uses `pypdfium2` for PDF rasterization, `Pillow` and `opencv-python` for image handling, and `pytesseract` with local Tesseract OCR for text extraction. | User approval on 2026-05-30; implementation validation on 2026-05-30 | Decided | Project authority | Revisit if the stack cannot support spread-aware prep, inspectable evidence retention, or object-class generalization without book-specific heuristics. |
 
 ## Pending Decisions
 
