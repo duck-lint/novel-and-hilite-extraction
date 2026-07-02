@@ -1,0 +1,23 @@
+Normalize a raw browser-copy text dump from a selectable PDF into semantic-ingestion-friendly Markdown.
+
+Designed for the Schopenhauer "On Vision and Colors" browser-copy paste, but intentionally
+kept generic enough for other book-like PDF text dumps.
+
+Core contract:
+- The raw input is never modified.
+- Normalization is conservative and reportable.
+- The output is Markdown structured for downstream semantic chunking.
+- The script prefers preserving questionable text over silently "improving" it.
+
+Example:
+    python normalize_browser_pdf_text.py \
+        "Pasted text(7).txt" \
+        --out-dir normalized_output \
+        --title "On Vision and Colors"
+
+Outputs:
+    normalized_output/
+      normalized.md
+      normalization_report.json
+      manual_review_flags.md
+      duplicate_candidates.json
