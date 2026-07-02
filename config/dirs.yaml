@@ -4,7 +4,7 @@ markdown: F:\Books\md
 
 for_prototyping:
   whole_book: F:\Books\PDFs\Schopenhauer, Arthur - About Vision and Colour - RAW.pdf
-  implementation_01:
+  highlight_extraction:
     qualified_packet:
       pdf_pages: "20-28"
       book_pages: "47-61"
