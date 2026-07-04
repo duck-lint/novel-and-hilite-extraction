@@ -6,14 +6,10 @@ import argparse
 import difflib
 import json
 import re
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Iterable
 
-
-# ----------------------------
-# Data models
-# ----------------------------
 
 @dataclass
 class Edit:
@@ -32,6 +28,14 @@ class Heading:
 
 
 @dataclass
+class ReviewFlag:
+    kind: str
+    line_number: int | None
+    text: str
+    reason: str
+
+
+@dataclass
 class DuplicateCandidate:
     first_paragraph_index: int
     second_paragraph_index: int
@@ -41,23 +45,9 @@ class DuplicateCandidate:
     recommendation: str
 
 
-@dataclass
-class ReviewFlag:
-    kind: str
-    line_number: int | None
-    text: str
-    reason: str
-
-
-# ----------------------------
-# Tunable rules
-# ----------------------------
-
-# Very conservative spacing repairs. Keep this list explicit.
-# Add to it only when you see recurring extraction artifacts in raw browser-copy text.
 TOKEN_REPAIRS: dict[str, str] = {
+    # Conservative browser/PDF extraction spacing repairs.
     "ofthe": "of the",
-    "ofThe": "of The",
     "ofwhite": "of white",
     "ofwhiteness": "of whiteness",
     "orwhether": "or whether",
@@ -66,7 +56,6 @@ TOKEN_REPAIRS: dict[str, str] = {
     "Mytheory": "My theory",
     "Myrepresentation": "My representation",
     "Frommyrepresentation": "From my representation",
-    "ana undivided": "an undivided",
     "halfof": "half of",
     "partof": "part of",
     "activity ofthe": "activity of the",
@@ -80,12 +69,24 @@ TOKEN_REPAIRS: dict[str, str] = {
     "geometric figures,which": "geometric figures, which",
     "experience,which": "experience, which",
     "however,the": "however, the",
-    "retina's activity": "retina's activity",
+    "moreweighty": "more weighty",
+    "fromTheodorus": "from Theodorus",
+    "don'tlet": "don't let",
+    "Youmust": "You must",
+    "Butthat": "But that",
+    "Ithink": "I think",
+    "Andwhat": "And what",
+    "Sot it": "So it",
+    "Well,is": "Well, is",
+    "tellyou": "tell you",
+    "theother": "the other",
+    "injust": "in just",
+    "butwhite": "but white",
+    "oughtwe": "ought we",
+    "doesthat": "does that",
 }
 
-# Known section-like titles from the uploaded book text.
-# This prevents the normalizer from needing to infer every major heading from scratch.
-MAJOR_HEADINGS = {
+KNOWN_MAJOR_HEADINGS = {
     "Contents",
     "On Vision and Colors",
     "Preface to the second edition.",
@@ -98,559 +99,19 @@ MAJOR_HEADINGS = {
     "Timeline of Schopenhauer's Life",
 }
 
-# If a line is this short and looks like a page number, it is removed from body output.
-PAGE_NUMBER_RE = re.compile(r"^\s*(?:[ivxlcdm]+|\d{1,4})\s*$", re.IGNORECASE)
-
+SPEAKER_RE = re.compile(r"^[A-Z][A-Z'’.-]{1,25}:\s*")
 SECTION_RE = re.compile(r"^\s*§\s*(\d+)\.?\s*(.*\S)?\s*$")
-CHAPTER_RE = re.compile(r"^\s*(First|Second|Third|Fourth|Fifth|Sixth|Seventh|Eighth|Ninth|Tenth)\s+Chapter\.\s+.+", re.IGNORECASE)
-LETTER_NUMBER_RE = re.compile(r"^\s*\d{1,2}\.\s*$")
+CHAPTER_RE = re.compile(r"^\s*(First|Second|Third|Fourth|Fifth|Sixth|Seventh|Eighth|Ninth|Tenth)\s+Chapter\.\s+.+", re.I)
 TIMELINE_ENTRY_RE = re.compile(r"^\s*(1[789]\d{2}|20\d{2})\s*[-–]\s+.+")
-
-# Lines with obvious extraction corruption. These are not automatically fixed.
+PAGE_NUMBER_RE = re.compile(r"^\s*(?:[ivxlcdm]+|[i1][o0]|\d{1,4})\s*$", re.I)
+STANDALONE_STEPHANUS_RE = re.compile(r"^\s*(?:\d{3,4}[a-eA-Eа-сА-С]?|[a-eA-Eа-сА-С])\s*$")
+INLINE_STEPHANUS_RE = re.compile(r"\b\d{3,4}\s*[a-eA-Eа-сА-С]\b")
+TRAILING_SINGLE_REF_RE = re.compile(r"([*!?;:])\s+[b-eB-EсС]\s*$")
+LEADING_SINGLE_REF_BEFORE_SPEAKER_RE = re.compile(r"^\s*[a-eA-Eа-сА-С]\s+(?=[A-Z][A-Z'’.-]{1,25}:)")
+ALL_CAPS_HEADING_RE = re.compile(r"^[A-Z0-9][A-Z0-9 '\-–—?:;,.&]+$")
 SUSPICIOUS_RE = re.compile(
-    r"("
-    r"[A-Za-z]{1,2}[A-Z][a-z]|"          # weird mid-token capital
-    r"[A-Za-z]+N\b|"                     # whitenesN-like
-    r"\b[Ii]h\b|"
-    r"\bff\w+|"
-    r"\b\w{1,2}[-–]\w{1,2}\b|"
-    r"[\"“][a-z]-\s|"
-    r"\bNense\b|"
-    r"\bRoth\b"
-    r")"
+    r"(\b\w{1,2}[-–]\w{1,2}\b|[A-Za-z]+N\b|\bff\w+|\bNense\b|\bRoth\b|\bsoome\b|\bt0\b|\bto0\b|\basso\b)"
 )
-
-
-# ----------------------------
-# Parsing helpers
-# ----------------------------
-
-def read_lines(path: Path) -> list[str]:
-    return path.read_text(encoding="utf-8-sig").splitlines()
-
-
-def is_page_number_line(line: str) -> bool:
-    stripped = line.strip()
-    if not stripped:
-        return False
-    if PAGE_NUMBER_RE.match(stripped) is None:
-        return False
-    # Keep one- or two-digit numbered letters only when surrounded later by letter content?
-    # At the raw-cleaning phase, a bare number is usually a page number in browser PDF paste.
-    return True
-
-
-def normalize_heading_text(text: str) -> str:
-    text = re.sub(r"\s+", " ", text.strip())
-    text = text.replace("Production ofwhite", "Production of white")
-    text = text.replace("activity ofthe", "activity of the")
-    return text
-
-
-def classify_heading(line: str, pending_line: str | None = None) -> tuple[int, str] | None:
-    """
-    Return (markdown_level, heading_text) or None.
-
-    Heading policy:
-    - # is reserved for the document title.
-    - ## major work/chapter/frontmatter/backmatter headings.
-    - ### numbered sections like § 10.
-    - #### numbered letters in correspondence sections.
-    """
-    stripped = normalize_heading_text(line)
-
-    if not stripped:
-        return None
-
-    # Contents line can be useful but should not become part of the body outline.
-    if stripped == "Contents":
-        return (2, "Contents")
-
-    # §10. Heading
-    section_match = SECTION_RE.match(stripped)
-    if section_match:
-        section_number = section_match.group(1)
-        title = section_match.group(2) or ""
-        title = normalize_heading_text(title)
-        heading_text = f"§ {section_number}"
-        if title:
-            heading_text += f". {title}"
-        return (3, heading_text)
-
-    if CHAPTER_RE.match(stripped):
-        return (2, stripped.rstrip("."))
-
-    if stripped in MAJOR_HEADINGS:
-        # If this is the title, caller may demote or skip duplicate title separately.
-        if stripped == "On Vision and Colors":
-            return (1, stripped)
-        return (2, stripped.rstrip("."))
-
-    # Some TOC/body headings wrap across two lines.
-    if pending_line:
-        combined = normalize_heading_text(f"{stripped} {pending_line}")
-        if combined in MAJOR_HEADINGS:
-            return (2, combined.rstrip("."))
-
-    # Letter sections are meaningful under "Letters..."
-    if LETTER_NUMBER_RE.match(stripped):
-        return (4, stripped)
-
-    # Timeline entries are useful semantic anchors.
-    if TIMELINE_ENTRY_RE.match(stripped):
-        return (3, stripped)
-
-    return None
-
-
-def apply_token_repairs(text: str, source_line: int | None, edits: list[Edit]) -> str:
-    repaired = text
-    for before, after in TOKEN_REPAIRS.items():
-        if before in repaired:
-            old = repaired
-            repaired = repaired.replace(before, after)
-            edits.append(
-                Edit(
-                    kind="token_spacing_repair",
-                    line_number=source_line,
-                    before=old,
-                    after=repaired,
-                    reason=f"Applied explicit conservative repair: {before!r} -> {after!r}",
-                )
-            )
-
-    # Punctuation spacing: only obvious missing space after comma/period when followed by a letter.
-    old = repaired
-    repaired = re.sub(r"([,;:])(?=[A-Za-z])", r"\1 ", repaired)
-    repaired = re.sub(r"([a-z])\.([A-Z])", r"\1. \2", repaired)
-    if repaired != old:
-        edits.append(
-            Edit(
-                kind="punctuation_spacing_repair",
-                line_number=source_line,
-                before=old,
-                after=repaired,
-                reason="Inserted missing space after punctuation in conservative contexts.",
-            )
-        )
-
-    return repaired
-
-
-def should_join_lines(current: str, next_line: str) -> bool:
-    """
-    Decide whether two raw PDF lines are part of the same paragraph.
-
-    Conservative bias:
-    - Join normal wrapped prose.
-    - Do not join headings, blank lines, page numbers, timeline entries, or standalone notes.
-    """
-    cur = current.rstrip()
-    nxt = next_line.lstrip()
-
-    if not cur or not nxt:
-        return False
-    if is_page_number_line(cur) or is_page_number_line(nxt):
-        return False
-    if classify_heading(cur) or classify_heading(nxt):
-        return False
-    if TIMELINE_ENTRY_RE.match(nxt):
-        return False
-    if nxt.startswith(("-", "–", "—")) and len(nxt) < 80:
-        return False
-
-    # Hyphenated line break.
-    if cur.endswith("-") and nxt and nxt[0].islower():
-        return True
-
-    # Strong sentence-ending punctuation usually indicates a possible paragraph boundary,
-    # but PDF line wraps can still put the next sentence immediately after.
-    # We choose not to join after terminal punctuation when the next line begins uppercase.
-    if re.search(r"[.!?][\"')\]]?$", cur) and nxt[:1].isupper():
-        return False
-
-    # Colon followed by continuation often belongs together.
-    if cur.endswith(":"):
-        return True
-
-    # Semicolon/comma almost always continues.
-    if cur.endswith((",", ";")):
-        return True
-
-    # If the next line begins lowercase, it is almost certainly a continuation.
-    if nxt[:1].islower():
-        return True
-
-    # Long-ish current line without terminal punctuation likely wraps.
-    if len(cur) >= 35 and not re.search(r"[.!?;:]$", cur):
-        return True
-
-    return False
-
-
-def join_wrapped_lines(lines: list[tuple[int, str]], edits: list[Edit]) -> list[tuple[int | None, str]]:
-    """
-    Convert raw lines into preliminary blocks:
-    - headings remain individual blocks
-    - paragraphs are joined from wrapped lines
-    - page number lines are dropped
-    """
-    blocks: list[tuple[int | None, str]] = []
-    current_line_no: int | None = None
-    current = ""
-
-    def flush() -> None:
-        nonlocal current, current_line_no
-        if current.strip():
-            blocks.append((current_line_no, current.strip()))
-        current = ""
-        current_line_no = None
-
-    i = 0
-    while i < len(lines):
-        line_no, raw = lines[i]
-        line = raw.rstrip()
-        stripped = line.strip()
-
-        if not stripped:
-            flush()
-            i += 1
-            continue
-
-        if is_page_number_line(stripped):
-            edits.append(
-                Edit(
-                    kind="page_number_removed",
-                    line_number=line_no,
-                    before=raw,
-                    after="",
-                    reason="Removed standalone page-number line.",
-                )
-            )
-            flush()
-            i += 1
-            continue
-
-        # Preserve headings as separate blocks.
-        if classify_heading(stripped):
-            flush()
-            blocks.append((line_no, normalize_heading_text(stripped)))
-            i += 1
-            continue
-
-        if not current:
-            current = stripped
-            current_line_no = line_no
-            i += 1
-            continue
-
-        if should_join_lines(current, stripped):
-            old = current
-            if current.endswith("-") and stripped[:1].islower():
-                current = current[:-1] + stripped
-            else:
-                current = current + " " + stripped
-            edits.append(
-                Edit(
-                    kind="line_wrap_join",
-                    line_number=line_no,
-                    before=old + "\n" + stripped,
-                    after=current,
-                    reason="Joined probable PDF hard-wrapped prose line.",
-                )
-            )
-        else:
-            flush()
-            current = stripped
-            current_line_no = line_no
-
-        i += 1
-
-    flush()
-    return blocks
-
-
-def markdown_blocks(
-    blocks: list[tuple[int | None, str]],
-    title: str,
-    edits: list[Edit],
-    review_flags: list[ReviewFlag],
-    include_contents: bool,
-) -> tuple[str, list[Heading]]:
-    """
-    Convert preliminary blocks into Markdown, applying heading detection and token repairs.
-    """
-    output: list[str] = []
-    headings: list[Heading] = []
-    title_written = False
-    in_contents = False
-
-    for source_line, block in blocks:
-        repaired = apply_token_repairs(block, source_line, edits)
-        heading = classify_heading(repaired)
-
-        if heading:
-            level, heading_text = heading
-
-            # Drop TOC if requested. For semantic traversal, the body headings matter more.
-            if heading_text == "Contents":
-                in_contents = True
-                if not include_contents:
-                    continue
-
-            # End contents when the actual title/body begins after TOC page marker.
-            if in_contents and heading_text == title:
-                in_contents = False
-
-            if in_contents and not include_contents:
-                continue
-
-            # Avoid duplicate # title if caller provided one.
-            if level == 1 and heading_text == title:
-                if not title_written:
-                    output.append(f"# {heading_text}")
-                    output.append("")
-                    title_written = True
-                    headings.append(Heading(level=1, text=heading_text, source_line=source_line or -1))
-                continue
-
-            if not title_written:
-                output.append(f"# {title}")
-                output.append("")
-                title_written = True
-                headings.append(Heading(level=1, text=title, source_line=0))
-
-            # Demote any additional level-1 headings to level 2 under the document title.
-            if level == 1:
-                level = 2
-
-            output.append(f"{'#' * level} {heading_text}")
-            output.append("")
-            headings.append(Heading(level=level, text=heading_text, source_line=source_line or -1))
-            continue
-
-        if in_contents and not include_contents:
-            continue
-
-        if not title_written:
-            output.append(f"# {title}")
-            output.append("")
-            title_written = True
-            headings.append(Heading(level=1, text=title, source_line=0))
-
-        if SUSPICIOUS_RE.search(repaired):
-            review_flags.append(
-                ReviewFlag(
-                    kind="suspicious_extraction_artifact",
-                    line_number=source_line,
-                    text=repaired[:240],
-                    reason="Contains token pattern that may indicate browser/PDF extraction corruption.",
-                )
-            )
-
-        # Preserve short marginalia / operator notes as blockquotes to avoid blending into body.
-        if repaired.startswith(("- ", "– ", "— ")) and len(repaired) < 120:
-            output.append(f"> {repaired}")
-            output.append("")
-        else:
-            output.append(repaired)
-            output.append("")
-
-    return "\n".join(output).strip() + "\n", headings
-
-
-def paragraphs_from_markdown(markdown: str) -> list[str]:
-    paragraphs: list[str] = []
-    current: list[str] = []
-
-    for line in markdown.splitlines():
-        stripped = line.strip()
-        if not stripped or stripped.startswith("#"):
-            if current:
-                paragraphs.append(" ".join(current).strip())
-                current = []
-            continue
-        if stripped.startswith(">"):
-            if current:
-                paragraphs.append(" ".join(current).strip())
-                current = []
-            paragraphs.append(stripped.lstrip("> ").strip())
-            continue
-        current.append(stripped)
-
-    if current:
-        paragraphs.append(" ".join(current).strip())
-
-    return [p for p in paragraphs if len(p) >= 80]
-
-
-def corruption_score(text: str) -> int:
-    """
-    Higher score means more likely corrupted.
-    Crude but useful for duplicate review recommendations.
-    """
-    score = 0
-    score += len(re.findall(r"\b\w{1,2}[-–]\w{1,2}\b", text)) * 3
-    score += len(re.findall(r"\b[A-Za-z]{1,2}\b", text))
-    score += len(re.findall(r"[A-Za-z]+N\b", text)) * 4
-    score += len(re.findall(r"\bff\w+", text)) * 2
-    score += len(re.findall(r"\b(?:Ih|Nense|Roth|lirmament|ffleulty)\b", text)) * 4
-    score += len(re.findall(r"\s{2,}", text))
-    return score
-
-
-def detect_duplicate_candidates(paragraphs: list[str]) -> list[DuplicateCandidate]:
-    """
-    Find likely duplicate paragraphs/sections caused by rescanned or reselected pages.
-    This does not delete anything. It only reports candidates.
-    """
-    candidates: list[DuplicateCandidate] = []
-
-    normalized = [
-        re.sub(r"[^a-z0-9]+", " ", p.lower()).strip()
-        for p in paragraphs
-    ]
-
-    for i in range(len(normalized)):
-        if len(normalized[i]) < 250:
-            continue
-        # Limit compare window to nearby-ish paragraphs for speed and relevance.
-        for j in range(i + 1, min(len(normalized), i + 25)):
-            if len(normalized[j]) < 250:
-                continue
-            ratio = difflib.SequenceMatcher(None, normalized[i], normalized[j]).ratio()
-            if ratio >= 0.72:
-                first_score = corruption_score(paragraphs[i])
-                second_score = corruption_score(paragraphs[j])
-                if first_score > second_score:
-                    recommendation = "manual_review_prefer_second"
-                elif second_score > first_score:
-                    recommendation = "manual_review_prefer_first"
-                else:
-                    recommendation = "manual_review_no_clear_preference"
-
-                candidates.append(
-                    DuplicateCandidate(
-                        first_paragraph_index=i,
-                        second_paragraph_index=j,
-                        similarity=round(ratio, 3),
-                        first_preview=paragraphs[i][:300],
-                        second_preview=paragraphs[j][:300],
-                        recommendation=recommendation,
-                    )
-                )
-
-    return candidates
-
-
-def write_review_flags(path: Path, flags: list[ReviewFlag]) -> None:
-    lines = ["# Manual Review Flags", ""]
-    if not flags:
-        lines.append("No manual review flags generated.")
-    else:
-        for idx, flag in enumerate(flags, start=1):
-            lines.append(f"## {idx}. {flag.kind}")
-            lines.append("")
-            lines.append(f"- Source line: {flag.line_number}")
-            lines.append(f"- Reason: {flag.reason}")
-            lines.append("")
-            lines.append("```text")
-            lines.append(flag.text)
-            lines.append("```")
-            lines.append("")
-    path.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
-
-
-def normalize_file(
-    input_path: Path,
-    out_dir: Path,
-    title: str,
-    include_contents: bool,
-) -> None:
-    out_dir.mkdir(parents=True, exist_ok=True)
-
-    raw_lines = read_lines(input_path)
-    numbered_lines = list(enumerate(raw_lines, start=1))
-
-    edits: list[Edit] = []
-    review_flags: list[ReviewFlag] = []
-
-    blocks = join_wrapped_lines(numbered_lines, edits)
-    markdown, headings = markdown_blocks(
-        blocks=blocks,
-        title=title,
-        edits=edits,
-        review_flags=review_flags,
-        include_contents=include_contents,
-    )
-
-    paragraphs = paragraphs_from_markdown(markdown)
-    duplicate_candidates = detect_duplicate_candidates(paragraphs)
-
-    # Duplicate candidates are review flags, not automatic deletion.
-    for candidate in duplicate_candidates:
-        review_flags.append(
-            ReviewFlag(
-                kind="duplicate_candidate",
-                line_number=None,
-                text=(
-                    f"Paragraph {candidate.first_paragraph_index} vs "
-                    f"{candidate.second_paragraph_index}; similarity={candidate.similarity}; "
-                    f"recommendation={candidate.recommendation}"
-                ),
-                reason="Fuzzy near-duplicate paragraph detected. Review before deleting or merging.",
-            )
-        )
-
-    normalized_path = out_dir / "normalized.md"
-    report_path = out_dir / "normalization_report.json"
-    flags_path = out_dir / "manual_review_flags.md"
-    duplicates_path = out_dir / "duplicate_candidates.json"
-
-    normalized_path.write_text(markdown, encoding="utf-8")
-
-    report = {
-        "input_file": str(input_path),
-        "title": title,
-        "raw_line_count": len(raw_lines),
-        "output_file": str(normalized_path),
-        "output_paragraph_count_estimate": len(paragraphs),
-        "heading_count": len(headings),
-        "headings": [asdict(h) for h in headings],
-        "edit_count": len(edits),
-        "edit_counts_by_kind": count_by_kind(edit.kind for edit in edits),
-        "review_flag_count": len(review_flags),
-        "review_flag_counts_by_kind": count_by_kind(flag.kind for flag in review_flags),
-        "duplicate_candidate_count": len(duplicate_candidates),
-        "notes": [
-            "Raw input was not modified.",
-            "Standalone page-number lines were removed from normalized output.",
-            "Line wraps were joined using conservative PDF-copy heuristics.",
-            "Duplicate candidates are reported only; no duplicate text is automatically deleted.",
-            "Suspicious extraction artifacts are flagged for manual review.",
-            "Token repairs are explicit and conservative; extend TOKEN_REPAIRS as needed.",
-        ],
-    }
-
-    report_path.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-    duplicates_path.write_text(
-        json.dumps([asdict(c) for c in duplicate_candidates], indent=2, ensure_ascii=False) + "\n",
-        encoding="utf-8",
-    )
-    write_review_flags(flags_path, review_flags)
-
-    print(json.dumps({
-        "normalized": str(normalized_path),
-        "report": str(report_path),
-        "review_flags": str(flags_path),
-        "duplicate_candidates": str(duplicates_path),
-        "raw_line_count": len(raw_lines),
-        "heading_count": len(headings),
-        "paragraph_count_estimate": len(paragraphs),
-        "edit_count": len(edits),
-        "review_flag_count": len(review_flags),
-        "duplicate_candidate_count": len(duplicate_candidates),
-    }, indent=2))
 
 
 def count_by_kind(values: Iterable[str]) -> dict[str, int]:
@@ -660,30 +121,451 @@ def count_by_kind(values: Iterable[str]) -> dict[str, int]:
     return dict(sorted(counts.items()))
 
 
+def collapse_spaces(text: str) -> str:
+    return re.sub(r"\s+", " ", text).strip()
+
+
+def normalize_heading_text(text: str) -> str:
+    text = collapse_spaces(text)
+    text = re.sub(r"\s+(\d{3,4}[a-eA-E])$", "", text)  # heading trailing refs like 143C
+    text = text.replace("Production ofwhite", "Production of white")
+    text = text.replace("activity ofthe", "activity of the")
+    return text.strip()
+
+
+def is_page_number_line(line: str) -> bool:
+    return bool(PAGE_NUMBER_RE.match(line.strip()))
+
+
+def is_reference_marker_line(line: str, reference_style: str) -> bool:
+    if reference_style == "stephanus":
+        return bool(STANDALONE_STEPHANUS_RE.match(line.strip()))
+    return False
+
+
+def is_running_header(line: str, title: str) -> bool:
+    stripped = collapse_spaces(line).strip("*")
+    title_norm = collapse_spaces(title).upper()
+    if stripped.upper() == title_norm:
+        return True
+    return False
+
+
+def classify_heading(line: str, title: str) -> tuple[int, str] | None:
+    stripped = normalize_heading_text(line)
+    if not stripped:
+        return None
+
+    # Main title.
+    if stripped.upper() == title.upper():
+        return (1, title)
+
+    section_match = SECTION_RE.match(stripped)
+    if section_match:
+        number = section_match.group(1)
+        rest = normalize_heading_text(section_match.group(2) or "")
+        return (3, f"§ {number}" + (f". {rest}" if rest else ""))
+
+    if CHAPTER_RE.match(stripped):
+        return (2, stripped.rstrip("."))
+
+    if stripped in KNOWN_MAJOR_HEADINGS:
+        if stripped == "Contents":
+            return (2, "Contents")
+        return (2, stripped.rstrip("."))
+
+    if TIMELINE_ENTRY_RE.match(stripped):
+        return (3, stripped)
+
+    # Dialogue/book section headings: WHAT IS KNOWLEDGE?, DICE AND SIZE PUZZLES, etc.
+    # Avoid speaker names and running headers by excluding very short all-caps single-word lines.
+    if ALL_CAPS_HEADING_RE.match(stripped):
+        words = stripped.split()
+        if len(words) >= 2 and not stripped.endswith(":"):
+            return (2, stripped)
+
+    return None
+
+
+def clean_reference_noise(line: str, line_no: int, reference_style: str, edits: list[Edit]) -> str:
+    cleaned = line
+    if reference_style != "stephanus":
+        return cleaned
+
+    old = cleaned
+    cleaned = INLINE_STEPHANUS_RE.sub("", cleaned)
+    if cleaned != old:
+        edits.append(Edit(
+            kind="reference_marker_removed",
+            line_number=line_no,
+            before=old,
+            after=cleaned,
+            reason="Removed inline Stephanus-style reference marker such as 142a / 143C.",
+        ))
+
+    old = cleaned
+    cleaned = LEADING_SINGLE_REF_BEFORE_SPEAKER_RE.sub("", cleaned)
+    if cleaned != old:
+        edits.append(Edit(
+            kind="reference_marker_removed",
+            line_number=line_no,
+            before=old,
+            after=cleaned,
+            reason="Removed leading single-letter margin marker before speaker label.",
+        ))
+
+    old = cleaned
+    # Very conservative trailing marker cleanup. Only b-e after *, !, ?, ;, or : is stripped.
+    # Do NOT strip trailing "a", because browser PDF wraps often leave a real article at line end.
+    cleaned2 = TRAILING_SINGLE_REF_RE.sub(r"\1", cleaned)
+    if cleaned2 != cleaned:
+        cleaned = cleaned2
+        edits.append(Edit(
+            kind="reference_marker_removed",
+            line_number=line_no,
+            before=old,
+            after=cleaned,
+            reason="Removed low-risk trailing single-letter Stephanus margin marker.",
+        ))
+
+    return cleaned
+
+
+def apply_token_repairs(text: str, source_line: int | None, edits: list[Edit]) -> str:
+    repaired = text
+    for before, after in TOKEN_REPAIRS.items():
+        if before in repaired:
+            old = repaired
+            repaired = repaired.replace(before, after)
+            edits.append(Edit(
+                kind="token_spacing_repair",
+                line_number=source_line,
+                before=old,
+                after=repaired,
+                reason=f"Explicit conservative repair: {before!r} -> {after!r}.",
+            ))
+
+    old = repaired
+    repaired = re.sub(r"([,;:])(?=[A-Za-z])", r"\1 ", repaired)
+    repaired = re.sub(r"([a-z])\.([A-Z])", r"\1. \2", repaired)
+    repaired = re.sub(r"\s+", " ", repaired).strip()
+    if repaired != old:
+        edits.append(Edit(
+            kind="punctuation_spacing_repair",
+            line_number=source_line,
+            before=old,
+            after=repaired,
+            reason="Inserted obvious missing spaces after punctuation and collapsed repeated whitespace.",
+        ))
+    return repaired
+
+
+def should_start_new_paragraph(previous: str, current: str, title: str) -> bool:
+    prev = previous.strip()
+    cur = current.strip()
+    if not prev or not cur:
+        return True
+    if classify_heading(cur, title) or classify_heading(prev, title):
+        return True
+    if SPEAKER_RE.match(cur):
+        return True
+    if cur.startswith(("- ", "– ", "— ")) and len(cur) < 120:
+        return True
+    if TIMELINE_ENTRY_RE.match(cur):
+        return True
+    if re.search(r"[.!?][\"')\]]?$", prev) and cur[:1].isupper():
+        return True
+    return False
+
+
+def should_join(previous: str, current: str, title: str) -> bool:
+    if should_start_new_paragraph(previous, current, title):
+        return False
+    prev = previous.rstrip()
+    cur = current.lstrip()
+    if prev.endswith("-") and cur[:1].islower():
+        return True
+    if prev.endswith((",", ";", ":", "—", "–")):
+        return True
+    if cur[:1].islower():
+        return True
+    if len(prev) >= 35 and not re.search(r"[.!?;:]$", prev):
+        return True
+    return False
+
+
+def split_embedded_speakers(text: str) -> list[str]:
+    """Split accidental joined dialogue turns: '... text. SOCRATES: ...'"""
+    # No capture group here; captured speakers caused duplicated labels in v2 draft.
+    parts = re.split(r"\s+(?=[A-Z][A-Z'’.-]{1,25}:\s)", text)
+    return [p.strip() for p in parts if p.strip()]
+
+
+def preprocess_lines(raw_lines: list[str], title: str, reference_style: str, edits: list[Edit]) -> list[tuple[int, str]]:
+    kept: list[tuple[int, str]] = []
+    title_seen = False
+
+    for line_no, raw in enumerate(raw_lines, start=1):
+        line = raw.strip()
+        if not line:
+            kept.append((line_no, ""))
+            continue
+
+        if is_page_number_line(line):
+            edits.append(Edit("page_number_removed", line_no, raw, "", "Removed standalone page-number line."))
+            kept.append((line_no, ""))
+            continue
+
+        if is_reference_marker_line(line, reference_style):
+            edits.append(Edit("reference_marker_line_removed", line_no, raw, "", "Removed standalone margin/reference marker line."))
+            kept.append((line_no, ""))
+            continue
+
+        if is_running_header(line, title):
+            if not title_seen:
+                title_seen = True
+                kept.append((line_no, line))
+            else:
+                edits.append(Edit("running_header_removed", line_no, raw, "", "Removed repeated running header matching title."))
+                kept.append((line_no, ""))
+            continue
+
+        cleaned = clean_reference_noise(line, line_no, reference_style, edits)
+        kept.append((line_no, cleaned.strip()))
+
+    return kept
+
+
+def build_blocks(lines: list[tuple[int, str]], title: str, edits: list[Edit]) -> list[tuple[int | None, str]]:
+    blocks: list[tuple[int | None, str]] = []
+    current = ""
+    current_line: int | None = None
+
+    def flush() -> None:
+        nonlocal current, current_line
+        if current.strip():
+            for part in split_embedded_speakers(current.strip()):
+                blocks.append((current_line, part))
+        current = ""
+        current_line = None
+
+    for line_no, line in lines:
+        stripped = line.strip()
+        if not stripped:
+            flush()
+            continue
+
+        if classify_heading(stripped, title):
+            flush()
+            blocks.append((line_no, normalize_heading_text(stripped)))
+            continue
+
+        if not current:
+            current = stripped
+            current_line = line_no
+            continue
+
+        if should_join(current, stripped, title):
+            old = current
+            if current.endswith("-") and stripped[:1].islower():
+                current = current[:-1] + stripped
+            else:
+                current = f"{current} {stripped}"
+            edits.append(Edit("line_wrap_join", line_no, old + "\n" + stripped, current, "Joined probable PDF hard-wrap."))
+        else:
+            flush()
+            current = stripped
+            current_line = line_no
+
+    flush()
+    return blocks
+
+
+def blocks_to_markdown(blocks: list[tuple[int | None, str]], title: str, edits: list[Edit], flags: list[ReviewFlag]) -> tuple[str, list[Heading]]:
+    out: list[str] = []
+    headings: list[Heading] = []
+    title_written = False
+
+    def ensure_title() -> None:
+        nonlocal title_written
+        if not title_written:
+            out.append(f"# {title}")
+            out.append("")
+            headings.append(Heading(1, title, 0))
+            title_written = True
+
+    for line_no, block in blocks:
+        block = apply_token_repairs(block, line_no, edits)
+        heading = classify_heading(block, title)
+
+        if heading:
+            level, heading_text = heading
+            if level == 1 and heading_text.upper() == title.upper():
+                ensure_title()
+                continue
+            ensure_title()
+            if level == 1:
+                level = 2
+            out.append(f"{'#' * level} {heading_text}")
+            out.append("")
+            headings.append(Heading(level, heading_text, line_no or -1))
+            continue
+
+        ensure_title()
+
+        if SUSPICIOUS_RE.search(block):
+            flags.append(ReviewFlag(
+                "suspicious_extraction_artifact",
+                line_no,
+                block[:260],
+                "Token pattern may indicate PDF/browser extraction corruption.",
+            ))
+
+        if block.startswith(("- ", "– ", "— ")) and len(block) < 120:
+            out.append(f"> {block}")
+        else:
+            out.append(block)
+        out.append("")
+
+    return "\n".join(out).strip() + "\n", headings
+
+
+def markdown_paragraphs(markdown: str) -> list[str]:
+    paras: list[str] = []
+    cur: list[str] = []
+    for line in markdown.splitlines():
+        s = line.strip()
+        if not s or s.startswith("#"):
+            if cur:
+                paras.append(" ".join(cur).strip())
+                cur = []
+            continue
+        if s.startswith(">"):
+            if cur:
+                paras.append(" ".join(cur).strip())
+                cur = []
+            paras.append(s.lstrip("> ").strip())
+            continue
+        cur.append(s)
+    if cur:
+        paras.append(" ".join(cur).strip())
+    return [p for p in paras if len(p) >= 80]
+
+
+def corruption_score(text: str) -> int:
+    score = 0
+    score += len(re.findall(r"\b\w{1,2}[-–]\w{1,2}\b", text)) * 3
+    score += len(re.findall(r"[A-Za-z]+N\b", text)) * 4
+    score += len(re.findall(r"\bff\w+", text)) * 2
+    score += len(re.findall(r"\b(?:Nense|Roth|lirmament|ffleulty|whitenesN)\b", text)) * 4
+    return score
+
+
+def detect_duplicates(paragraphs: list[str]) -> list[DuplicateCandidate]:
+    norm = [re.sub(r"[^a-z0-9]+", " ", p.lower()).strip() for p in paragraphs]
+    candidates: list[DuplicateCandidate] = []
+    for i in range(len(norm)):
+        if len(norm[i]) < 250:
+            continue
+        for j in range(i + 1, min(i + 25, len(norm))):
+            if len(norm[j]) < 250:
+                continue
+            ratio = difflib.SequenceMatcher(None, norm[i], norm[j]).ratio()
+            if ratio >= 0.72:
+                s1, s2 = corruption_score(paragraphs[i]), corruption_score(paragraphs[j])
+                if s1 > s2:
+                    rec = "manual_review_prefer_second"
+                elif s2 > s1:
+                    rec = "manual_review_prefer_first"
+                else:
+                    rec = "manual_review_no_clear_preference"
+                candidates.append(DuplicateCandidate(i, j, round(ratio, 3), paragraphs[i][:300], paragraphs[j][:300], rec))
+    return candidates
+
+
+def write_review_flags(path: Path, flags: list[ReviewFlag]) -> None:
+    lines = ["# Manual Review Flags", ""]
+    if not flags:
+        lines.append("No manual review flags generated.")
+    for idx, flag in enumerate(flags, start=1):
+        lines += [f"## {idx}. {flag.kind}", "", f"- Source line: {flag.line_number}", f"- Reason: {flag.reason}", "", "```text", flag.text, "```", ""]
+    path.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
+
+
+def normalize(input_path: Path, out_dir: Path, title: str, reference_style: str) -> None:
+    raw_lines = input_path.read_text(encoding="utf-8-sig").splitlines()
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    edits: list[Edit] = []
+    flags: list[ReviewFlag] = []
+
+    preprocessed = preprocess_lines(raw_lines, title, reference_style, edits)
+    blocks = build_blocks(preprocessed, title, edits)
+    markdown, headings = blocks_to_markdown(blocks, title, edits, flags)
+    paragraphs = markdown_paragraphs(markdown)
+    duplicates = detect_duplicates(paragraphs)
+
+    for dup in duplicates:
+        flags.append(ReviewFlag(
+            "duplicate_candidate",
+            None,
+            f"Paragraph {dup.first_paragraph_index} vs {dup.second_paragraph_index}; similarity={dup.similarity}; {dup.recommendation}",
+            "Fuzzy near-duplicate text detected. Not automatically removed.",
+        ))
+
+    (out_dir / "normalized.md").write_text(markdown, encoding="utf-8")
+    (out_dir / "duplicate_candidates.json").write_text(json.dumps([asdict(d) for d in duplicates], indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    write_review_flags(out_dir / "manual_review_flags.md", flags)
+
+    report = {
+        "input_file": str(input_path),
+        "title": title,
+        "reference_style": reference_style,
+        "raw_line_count": len(raw_lines),
+        "output_file": str(out_dir / "normalized.md"),
+        "heading_count": len(headings),
+        "headings": [asdict(h) for h in headings],
+        "paragraph_count_estimate": len(paragraphs),
+        "edit_count": len(edits),
+        "edit_counts_by_kind": count_by_kind(e.kind for e in edits),
+        "review_flag_count": len(flags),
+        "review_flag_counts_by_kind": count_by_kind(f.kind for f in flags),
+        "duplicate_candidate_count": len(duplicates),
+        "notes": [
+            "Raw input was not modified.",
+            "This version does not drop the table of contents by default; the prior aggressive TOC-skipping bug was removed.",
+            "Standalone page numbers are removed.",
+            "Stephanus/reference markers are removed only when --reference-style stephanus is used.",
+            "Duplicate candidates are reported only; no duplicate text is automatically deleted.",
+            "Suspicious extraction artifacts are flagged for review.",
+        ],
+    }
+    (out_dir / "normalization_report.json").write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+
+    print(json.dumps({
+        "normalized": str(out_dir / "normalized.md"),
+        "report": str(out_dir / "normalization_report.json"),
+        "review_flags": str(out_dir / "manual_review_flags.md"),
+        "duplicate_candidates": str(out_dir / "duplicate_candidates.json"),
+        "raw_line_count": len(raw_lines),
+        "heading_count": len(headings),
+        "paragraph_count_estimate": len(paragraphs),
+        "edit_count": len(edits),
+        "review_flag_count": len(flags),
+        "duplicate_candidate_count": len(duplicates),
+    }, indent=2, ensure_ascii=False))
+
+
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(
-        description="Normalize raw browser-copied PDF text into semantic-ingestion-friendly Markdown."
-    )
+    parser = argparse.ArgumentParser(description="Normalize browser-copied PDF text into Markdown.")
+    parser.add_argument("input", type=Path, help="Raw browser-copy text file")
+    parser.add_argument("--out-dir", type=Path, default=Path("normalized_output"), help="Output directory")
+    parser.add_argument("--title", default="Untitled", help="Top-level Markdown title")
     parser.add_argument(
-        "input",
-        type=Path,
-        help="Raw browser-copy text file.",
-    )
-    parser.add_argument(
-        "--out-dir",
-        type=Path,
-        default=Path("normalized_output"),
-        help="Output directory. Default: normalized_output",
-    )
-    parser.add_argument(
-        "--title",
-        default="On Vision and Colors",
-        help="Document title for the top-level Markdown heading.",
-    )
-    parser.add_argument(
-        "--include-contents",
-        action="store_true",
-        help="Keep the table of contents in normalized.md. Default is to drop it.",
+        "--reference-style",
+        choices=["none", "stephanus"],
+        default="none",
+        help="Optional margin/reference marker cleanup. Use 'stephanus' for Plato-style 142a/b/c/d markers.",
     )
     return parser
 
@@ -692,13 +574,7 @@ def main() -> int:
     args = build_parser().parse_args()
     if not args.input.is_file():
         raise SystemExit(f"Input file does not exist: {args.input}")
-
-    normalize_file(
-        input_path=args.input,
-        out_dir=args.out_dir,
-        title=args.title,
-        include_contents=args.include_contents,
-    )
+    normalize(args.input, args.out_dir, args.title, args.reference_style)
     return 0
 
 
