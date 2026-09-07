@@ -1,9 +1,12 @@
 {
   "schema_version": "probe-expected-v1",
+  "raw_input_mode": "physical-line-preserving",
+  "raw_fixture": "pdf06.raw.md",
+  "normalized_reference": "pdf06.normalized.md",
   "review_status": "human_review_accepted",
   "authority_note": "Expected structure is derived from visible scan layout. Text anchors are short locators into the raw-extracted source and are not replacements for source text.",
   "fixture_id": "stella_maris_pdf06_dense-dialogue",
-  "source_pdf": "McCarthy, Cormac - Stella Maris.pt2.pdf",
+  "source_pdf": "McCarthy, Cormac - Stella Maris.pt2 6.pdf",
   "pdf_page_index_1_based": 6,
   "visible_printed_page_labels": [
     null,

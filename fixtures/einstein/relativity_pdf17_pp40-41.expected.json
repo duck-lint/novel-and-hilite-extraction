@@ -1,9 +1,12 @@
 {
   "schema_version": "probe-expected-v1",
+  "raw_input_mode": "physical-line-preserving",
+  "raw_fixture": "pdf17_pp40-41.raw.md",
+  "normalized_reference": "pdf17_pp40-41.normalized.md",
   "review_status": "human_review_accepted",
   "authority_note": "Expected structure is derived from visible scan layout. Text anchors are short locators into the raw-extracted source and are not replacements for source text.",
   "fixture_id": "relativity_pdf17_pp40-41",
-  "source_pdf": "Einstein, Albert - Relativity.pdf",
+  "source_pdf": "Einstein, Albert - Relativity 17.pdf",
   "pdf_page_index_1_based": 17,
   "visible_printed_page_labels": [
     "40",

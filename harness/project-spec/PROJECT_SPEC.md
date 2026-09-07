@@ -7,7 +7,7 @@
 Build a local, deterministic pipeline that reconstructs useful Markdown document structure from:
 
 1. a user-owned scanned PDF, which is authoritative for page geometry and observable layout; and
-2. a flat raw/browser-extracted text or Markdown source, which is authoritative for lexical wording unless an explicit repair is authorized.
+2. a raw/browser-extracted text or Markdown source, which may be fully flattened or preserve physical line breaks and is authoritative for lexical wording unless an explicit repair is authorized.
 
 The system MUST reunite **what the source says** with **where it appears on the page**.
 
@@ -33,7 +33,7 @@ The first implementation milestone MUST test this thesis across multiple books b
 
 ## 3. Primary Goal
 
-Given a scanned PDF and its corresponding flat extracted text, produce a structure map that can identify, with explicit confidence:
+Given a scanned PDF and its corresponding raw extracted text, produce a structure map that can identify, with explicit confidence:
 
 - printed page boundaries;
 - physical text lines;
@@ -45,7 +45,7 @@ Given a scanned PDF and its corresponding flat extracted text, produce a structu
 - cross-page paragraph continuation;
 - source-text spans corresponding to those layout structures.
 
-The system MUST be capable of inserting paragraph/heading boundaries into the flat text without silently rewriting its wording.
+The system MUST be capable of inserting paragraph/heading boundaries into a derived projection of the raw text without silently rewriting its wording.
 
 ---
 
@@ -72,7 +72,7 @@ The implementation MUST obey `AUTHORITY.md`.
 At a high level:
 
 1. source scan pixels are authoritative for observable layout;
-2. raw/browser extraction is authoritative for lexical wording;
+2. raw/browser extraction is authoritative for lexical wording, whether fully flattened or physical-line-preserving;
 3. OCR text is non-authoritative and may be used only to locate/alignment-match geometry;
 4. deterministic layout heuristics may classify structure;
 5. semantic inference may only resolve explicitly ambiguous cases if later authorized;
@@ -113,7 +113,7 @@ positioned OCR tokens + line geometry
     ↓
 layout features and candidate structural boundaries
     ↓
-approximate alignment to flat raw text
+approximate alignment to raw/browser text
     ↓
 source-text span ↔ page-geometry map
     ↓
@@ -180,22 +180,24 @@ Before building a general reconstruction engine, prove or falsify the thesis tha
 
 ### 8.2 Probe corpus
 
-Use a small hand-selected sample from at least:
+Use the intentionally selected source classes already represented by the repository fixtures:
 
-- Einstein — conventional prose / sectioned technical text;
-- *Stella Maris* — dialogue-heavy unconventional typography;
-- Gärdenfors — numbered hierarchy, figures/captions, headers;
-- one additional prose/philosophy source with conventional paragraphs.
+- Einstein, *Relativity* — conventional prose / sectioned technical text;
+- McCarthy, *Stella Maris* — dialogue-heavy unconventional typography.
 
-Recommended sample: 3–5 representative printed pages per source, including at least one difficult page.
+The current probe/MVP gate requires only these two source classes and their existing core/stretch fixtures. Gärdenfors and any fourth prose/philosophy source are deferred validation, not current acceptance inputs. Additional books and layout classes may be added later without changing the current gate.
 
 ### 8.3 Probe inputs
 
-For each sample:
+For each fixture:
 
 - source PDF;
-- corresponding flat extracted text/Markdown;
+- corresponding raw/browser-extracted text/Markdown, either fully flattened or physical-line-preserving;
 - page or spread range to inspect.
+
+When physical line breaks are present, they are admissible alignment evidence but are not paragraph/block authority. Geometry, not extraction line wrapping, determines observable structure.
+
+Fixture PDFs are required for executable geometry tests but are intentionally ignored and untracked. A clean clone without the local PDFs MUST fail or skip geometry-dependent tests explicitly according to the test contract; it MUST NOT substitute another source or silently pass.
 
 ### 8.4 Probe outputs
 
@@ -442,9 +444,9 @@ Cover:
 - cross-page continuation;
 - serialization/provenance.
 
-### 16.2 Golden probe fixtures
+### 16.2 Reviewed probe fixtures
 
-Maintain small representative fixtures with expected:
+Maintain small, human-reviewed representative fixtures with an `*.expected.json` structural oracle containing expected:
 
 - printed-page orientation/order;
 - paragraph-start coordinates;
@@ -452,7 +454,13 @@ Maintain small representative fixtures with expected:
 - page-furniture classifications;
 - source-text alignment anchors.
 
-Golden fixtures SHOULD be small enough to inspect manually.
+Fixture roles are distinct:
+
+- `*.raw.md` is the immutable lexical substrate;
+- `*.expected.json` is the human-reviewed structural oracle for explicit assertions;
+- `*.normalized.md` is a human-produced reference structural normalization for inspection and benchmarking only.
+
+The normalized reference MUST NOT be treated as authoritative lexical text and MUST NOT require exact whole-file equality from an implementation. Acceptance SHOULD evaluate the explicit structural assertions in `*.expected.json`, provenance, source-span preservation, page-furniture handling, uncertainty, and other project contracts. A normalized reference may illustrate a plausible projection; it does not define the only valid projection.
 
 ### 16.3 No metric gaming
 
@@ -473,7 +481,7 @@ Agents SHOULD proceed in this order:
 5. infer paragraph-start candidates from geometry;
 6. produce probe JSON/report;
 7. align geometry to flat text;
-8. run probe across the required multi-book corpus;
+8. run probe across the required Einstein and McCarthy fixture corpus;
 9. evaluate probe against acceptance criteria;
 10. only after probe acceptance, design the generalized reconstruction/projection layer.
 
@@ -487,7 +495,7 @@ Agents MUST NOT skip directly to full-book rewriting.
 Mitigation: OCR wording is non-authoritative. Optimize geometry/alignment only.
 
 ### Trap: Overfit first-line indent to Einstein
-Mitigation: probe corpus MUST include dialogue-heavy and hierarchical sources before acceptance.
+Mitigation: the current probe corpus MUST include both Einstein's conventional prose and McCarthy's dialogue-heavy layout before acceptance. Hierarchical and other layout classes are deferred validation.
 
 ### Trap: Trust Tesseract `par_num` as truth
 Mitigation: derive paragraph evidence from measured geometry; OCR structural IDs are only features.
@@ -527,7 +535,7 @@ Mitigation: acceptance is based on structural correctness + provenance, not aest
 
 Milestone 0 is done when:
 
-- the required multi-book sample has been processed;
+- the selected Einstein and McCarthy fixture sample has been processed;
 - outputs are inspectable;
 - paragraph/layout recovery has been manually evaluated;
 - failure modes are documented;
@@ -544,4 +552,3 @@ The reconstruction MVP is done when:
 - uncertainty is surfaced;
 - the result is reproducible from the same inputs;
 - every structural insertion can be traced back to page/layout evidence.
-

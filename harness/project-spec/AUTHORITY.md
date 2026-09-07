@@ -54,11 +54,11 @@ Agents MUST preserve these invariants:
 
 ### 2.1 Lexical immutability
 
-The original raw/browser text is immutable.
+The original raw/browser text is immutable. The input may be fully flattened or may preserve physical extraction line breaks. Those line breaks may assist alignment when present, but they do not establish paragraph or block boundaries.
 
-Structural reconstruction may insert Markdown syntax or boundaries into a derived output, but MUST NOT silently alter lexical characters.
+Structural reconstruction may insert Markdown syntax or boundaries into a derived output, but MUST NOT silently alter lexical characters or treat extraction line wrapping as layout authority.
 
-Any lexical repair is a separate operation with explicit provenance.
+Any lexical repair is a separate operation with explicit provenance. A fixture may document a known extraction anomaly as an observation without authorizing a general repair rule or allowing runtime reconstruction to correct it silently.
 
 ### 2.2 Layout fidelity
 
@@ -78,7 +78,7 @@ The project exists specifically because OCR can be poor at letters while still u
 
 ### 2.5 Derived artifacts are not source authority
 
-Reconstructed Markdown, normalized text, alignment maps, and probe reports are derived artifacts.
+Reconstructed Markdown, normalized text, alignment maps, and probe reports are derived artifacts. In the fixture contract, `*.raw.md` is the lexical substrate, `*.expected.json` is a human-reviewed structural oracle, and `*.normalized.md` is an inspectable reference projection only; the latter two do not replace raw lexical authority.
 
 The original PDF and original extracted text remain the upstream authorities.
 

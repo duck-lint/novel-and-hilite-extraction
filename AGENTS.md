@@ -16,8 +16,8 @@ This repository contains **project-specific specification and authority only**. 
 
 Authoritative project documents:
 
-* `harness/project-spec/project-spec.md` — required behavior, probe contract, MVP boundary, stack, reconstruction rules, and acceptance criteria.
-* `harness/project-spec/authority.md` — canonical authority hierarchy, source immutability, OCR limits, provenance rules, and stop conditions.
+* `harness/project-spec/PROJECT_SPEC.md` — required behavior, probe contract, MVP boundary, stack, reconstruction rules, and acceptance criteria.
+* `harness/project-spec/AUTHORITY.md` — canonical authority hierarchy, source immutability, OCR limits, provenance rules, and stop conditions.
 * `harness/project-spec/mvp-implementation-plan.md` — project-specific implementation order and acceptance gates.
 
 These documents have distinct scopes.
@@ -31,10 +31,12 @@ Existing implementation does not override the harness.
 ## Core Authority Split
 
 * scanned page pixels are authoritative for **observable layout**;
-* raw/browser-extracted text is authoritative for **lexical wording**;
+* raw/browser-extracted text is authoritative for **lexical wording**, whether its extraction is flattened or preserves physical line breaks;
 * OCR text is **non-authoritative** and may be used only as a locating/alignment instrument;
 * derived Markdown is a reconstruction artifact, never source authority;
 * uncertainty must remain explicit when authorized evidence is insufficient.
+
+Existing raw line breaks may be used as alignment evidence when present, but they do not establish paragraph or block boundaries. Page geometry remains authoritative for observable structure.
 
 ## Hard Boundary
 

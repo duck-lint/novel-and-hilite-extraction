@@ -29,6 +29,8 @@ The empirical probe is a hard gate: the generalized reconstruction pipeline must
 * basic test command
 * environment check for Tesseract availability/version
 
+Fixture PDFs are local test inputs, intentionally ignored and untracked. Geometry-dependent tests MUST report the missing-PDF condition explicitly on a clean clone and MUST NOT substitute another source.
+
 ### Acceptance
 
 * package imports
@@ -64,6 +66,7 @@ Support:
 * every applied transform is recorded
 * preprocessing output can be inspected visually
 * source PDFs remain unchanged
+* missing local fixture PDFs produce an explicit fail/skip outcome rather than silent substitution
 
 ### Stop condition
 
@@ -140,9 +143,9 @@ Do not convert low-confidence candidates into hard structure merely to improve a
 
 ---
 
-## Slice 4 — raw-Text Alignment
+## Slice 4 — Raw-Text Alignment
 
-Align noisy OCR geometry to the canonical flat raw/browser text.
+Align noisy OCR geometry to the canonical raw/browser text, whether fully flattened or physical-line-preserving.
 
 Requirements:
 
@@ -163,6 +166,7 @@ For the core fixtures:
 * running headers/page numbers do not poison body-text alignment
 * alignment confidence is surfaced
 * raw text remains byte-for-byte unchanged as source input
+* physical extraction line breaks, when present, are not promoted to paragraph/block authority
 
 ### Stop condition
 
@@ -172,7 +176,7 @@ If alignment drift cannot reliably resynchronize, stop rather than masking drift
 
 ## Slice 5 — Probe Gate
 
-Run the empirical probe across the human-reviewed fixture corpus.
+Run the empirical probe across the human-reviewed Einstein and McCarthy fixture corpus.
 
 Core set:
 
@@ -194,7 +198,7 @@ For every fixture:
 * geometry JSON
 * alignment report
 * candidate structure JSON
-* comparison against `expected.json`
+* comparison against `*.expected.json`
 * human-readable probe report
 
 ### Acceptance
@@ -210,7 +214,7 @@ The probe passes only if:
 * alignment survives ordinary OCR noise
 * uncertainty is surfaced rather than hidden
 
-Success on one Einstein page is insufficient.
+Success on one Einstein page is insufficient; the current gate requires both selected source classes.
 
 ### Stop condition
 
@@ -291,8 +295,9 @@ Add regression coverage for:
 * every test states which authority layer it verifies
 * OCR text accuracy is never used as proof of reconstruction correctness
 * alignment tests do not substitute for structural tests
-* expected fixtures remain source-of-truth only after human review
-* implementation cannot improve a fixture by rewriting its expected output
+* expected JSONs remain human-reviewed structural oracles, not lexical source text
+* normalized Markdown references are inspectable benchmarks/examples only and are not exact whole-file output oracles
+* implementation cannot improve a fixture by rewriting its expected JSON or normalized reference
 
 ---
 
@@ -313,7 +318,7 @@ Verify:
 
 ### MVP Completion
 
-MVP is complete when the acceptance criteria in `harness/project-spec/project-spec.md` are satisfied.
+MVP is complete when the acceptance criteria in `harness/project-spec/PROJECT_SPEC.md` are satisfied.
 
 The minimum successful end state is:
 

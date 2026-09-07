@@ -1,9 +1,12 @@
 {
   "schema_version": "probe-expected-v1",
+  "raw_input_mode": "physical-line-preserving",
+  "raw_fixture": "pdf18.raw.md",
+  "normalized_reference": "pdf18.normalized.md",
   "review_status": "human_review_accepted",
   "authority_note": "Expected structure is derived from visible scan layout. Text anchors are short locators into the raw-extracted source and are not replacements for source text.",
   "fixture_id": "stella_maris_pdf18_session-II_p35",
-  "source_pdf": "McCarthy, Cormac - Stella Maris.pt2.pdf",
+  "source_pdf": "McCarthy, Cormac - Stella Maris.pt2 18.pdf",
   "pdf_page_index_1_based": 18,
   "visible_printed_page_labels": [
     null,
@@ -12,7 +15,7 @@
   "selection_reason": [
     "session transition",
     "dense unlabelled dialogue",
-    "raw raw reading-order anomaly for the session numeral",
+    "raw reading-order anomaly for the session numeral",
     "multi-line turns",
     "page number",
     "cyan highlighting"
@@ -28,7 +31,7 @@
       "scan_visible_text": "II",
       "decorative_rule_below": true,
       "raw_observation": {
-        "raw_relative_order": "The token 'II' appears after 'So what's been on your mind?' in the flat raw extraction.",
+        "raw_relative_order": "The token 'II' appears after 'So what's been on your mind?' in the raw extraction.",
         "expected_layout_order": "The session heading precedes 'How have you been?' and all dialogue on this spread."
       }
     },
