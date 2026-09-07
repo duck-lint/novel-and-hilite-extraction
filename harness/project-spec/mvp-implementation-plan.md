@@ -67,6 +67,7 @@ Support:
 * preprocessing output can be inspected visually
 * source PDFs remain unchanged
 * missing local fixture PDFs produce an explicit fail/skip outcome rather than silent substitution
+* the one-page local fixture index is distinguished from the original source-PDF page index retained as provenance
 
 ### Stop condition
 
@@ -204,6 +205,8 @@ For every fixture:
 ### Acceptance
 
 The probe passes only if:
+
+Overall probe acceptance requires evidence from both the Relativity fixtures and the Stella Maris fixtures.
 
 * conventional paragraph starts are recovered reliably across Relativity samples
 * wrapped physical lines are not confused with new paragraphs/dialogue turns

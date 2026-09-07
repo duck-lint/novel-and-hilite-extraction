@@ -7,7 +7,8 @@
   "authority_note": "Expected structure is derived from visible scan layout. Text anchors are short locators into the raw-extracted source and are not replacements for source text.",
   "fixture_id": "relativity_pdf17_pp40-41",
   "source_pdf": "Einstein, Albert - Relativity 17.pdf",
-  "pdf_page_index_1_based": 17,
+  "fixture_pdf_page_index_1_based": 1,
+  "source_pdf_page_index_1_based": 17,
   "visible_printed_page_labels": [
     "40",
     "41"

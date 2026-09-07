@@ -21,6 +21,8 @@ The fixture PDFs are required local inputs for executable geometry tests. They a
 
 The `source_pdf` value in each `*.expected.json` names the exact sibling PDF expected locally. The current bindings are:
 
+Each listed local PDF is a one-page fixture asset. `fixture_pdf_page_index_1_based` is the page index used to open that local asset and is `1` for every current fixture. `source_pdf_page_index_1_based` preserves the original source-PDF index as provenance; it is not a local runtime page selector.
+
 | Source | Expected JSONs | Local PDF names |
 | --- | --- | --- |
 | Einstein, *Relativity* | `relativity_pdf10_pp26-27`, `relativity_pdf17_pp40-41`, `relativity_pdf23_pp52-53` | `Einstein, Albert - Relativity 10.pdf`, `Einstein, Albert - Relativity 17.pdf`, `Einstein, Albert - Relativity 23.pdf` |

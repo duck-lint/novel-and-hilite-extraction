@@ -7,7 +7,8 @@
   "authority_note": "Expected structure is derived from visible scan layout. Text anchors are short locators into the raw-extracted source and are not replacements for source text.",
   "fixture_id": "stella_maris_pdf18_session-II_p35",
   "source_pdf": "McCarthy, Cormac - Stella Maris.pt2 18.pdf",
-  "pdf_page_index_1_based": 18,
+  "fixture_pdf_page_index_1_based": 1,
+  "source_pdf_page_index_1_based": 18,
   "visible_printed_page_labels": [
     null,
     "35"
@@ -328,7 +329,7 @@
     }
   ],
   "critical_assertions": [
-    "The session heading II is structurally first even though raw places its token later in the flattened text.",
+    "The session heading II is structurally first even though raw places its token later in the raw extraction.",
     "Every listed turn is a distinct typographic dialogue block.",
     "Wrapped turns remain single dialogue blocks.",
     "The page number is not dialogue."

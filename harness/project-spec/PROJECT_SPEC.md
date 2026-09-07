@@ -199,6 +199,8 @@ When physical line breaks are present, they are admissible alignment evidence bu
 
 Fixture PDFs are required for executable geometry tests but are intentionally ignored and untracked. A clean clone without the local PDFs MUST fail or skip geometry-dependent tests explicitly according to the test contract; it MUST NOT substitute another source or silently pass.
 
+Each local fixture PDF is a one-page asset. The runtime/local PDF page index is therefore `fixture_pdf_page_index_1_based: 1`. The original source-PDF page index is separate provenance in `source_pdf_page_index_1_based`; it MUST NOT be used to open a page in the local fixture asset.
+
 ### 8.4 Probe outputs
 
 The probe MUST produce all of the following without modifying the source Markdown:
@@ -234,13 +236,13 @@ The probe MAY additionally emit a non-authoritative preview Markdown, but MUST l
 
 The probe passes only if human inspection shows:
 
-- conventional prose paragraph starts are recovered reliably enough to be useful across more than one book;
+- conventional prose paragraph starts are recovered reliably enough to be useful across the selected Relativity fixtures;
 - OCR transcription errors do not materially prevent alignment for ordinary body text;
 - page furniture can be distinguished from body structure often enough to avoid systematic contamination;
 - the approach can represent uncertainty instead of forcing a boundary;
 - *Stella Maris* yields enough geometric signal to make dialogue-turn reconstruction plausible, or its distinct failure mode is explicitly characterized.
 
-The probe MUST NOT be declared successful based on a single Einstein page.
+The overall probe acceptance requires human inspection of both Einstein and McCarthy fixtures. The probe MUST NOT be declared successful based on a single Einstein page or on the Relativity fixtures alone.
 
 ### 8.6 Probe failure criteria
 
@@ -300,7 +302,7 @@ Preprocessing MUST NOT permanently alter the source PDF.
 Alignment is between:
 
 - noisy OCR token/line sequences; and
-- canonical flat source text.
+- canonical raw/browser source text.
 
 Requirements:
 
@@ -396,7 +398,7 @@ Every projected structural edit SHOULD be traceable to:
 - classification rule;
 - confidence.
 
-The system MUST preserve the original flat text unchanged.
+The system MUST preserve the original raw/browser-extracted text unchanged.
 
 A reconstructed Markdown file is a derived artifact, never a replacement authority.
 
@@ -480,7 +482,7 @@ Agents SHOULD proceed in this order:
 4. visualize lines/boxes;
 5. infer paragraph-start candidates from geometry;
 6. produce probe JSON/report;
-7. align geometry to flat text;
+7. align geometry to raw/browser text;
 8. run probe across the required Einstein and McCarthy fixture corpus;
 9. evaluate probe against acceptance criteria;
 10. only after probe acceptance, design the generalized reconstruction/projection layer.

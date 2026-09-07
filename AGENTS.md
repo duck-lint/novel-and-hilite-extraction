@@ -2,7 +2,7 @@
 
 ## Project
 
-Normalize reconstructs document structure in flat browser-extracted book text by aligning it to observable layout in the user's scanned PDF pages.
+Normalize reconstructs document structure in raw/browser-extracted book text by aligning it to observable layout in the user's scanned PDF pages.
 
 It is not a general OCR engine and it does not replace source wording.
 
