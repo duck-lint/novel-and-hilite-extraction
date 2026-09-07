@@ -1,10 +1,10 @@
-# Normalization — MVP Implementation Plan
+# Normalize — MVP Implementation Plan
 
 ## Goal
 
 Reach MVP through vertical slices that preserve the project’s authority model:
 
-`scan pixels → layout geometry → OCR anchors → Brave-text alignment → structural reconstruction → derived Markdown`
+`scan pixels → layout geometry → OCR anchors → raw-text alignment → structural reconstruction → derived Markdown`
 
 Do not build broad infrastructure ahead of demonstrated need.
 
@@ -140,9 +140,9 @@ Do not convert low-confidence candidates into hard structure merely to improve a
 
 ---
 
-## Slice 4 — Brave-Text Alignment
+## Slice 4 — raw-Text Alignment
 
-Align noisy OCR geometry to the canonical flat Brave/browser text.
+Align noisy OCR geometry to the canonical flat raw/browser text.
 
 Requirements:
 
@@ -162,7 +162,7 @@ For the core fixtures:
 * isolated OCR character errors do not derail later alignment
 * running headers/page numbers do not poison body-text alignment
 * alignment confidence is surfaced
-* Brave text remains byte-for-byte unchanged as source input
+* raw text remains byte-for-byte unchanged as source input
 
 ### Stop condition
 
@@ -220,7 +220,7 @@ If the core fixture set does not satisfy the project-spec probe acceptance crite
 
 ## Slice 6 — Structural Reconstruction
 
-Project accepted structure onto the canonical Brave text.
+Project accepted structure onto the canonical raw text.
 
 Support:
 
@@ -234,7 +234,7 @@ Support:
 ### Acceptance
 
 * reconstruction is written to a derived file
-* source PDF and source Brave text remain unchanged
+* source PDF and source raw text remain unchanged
 * structural insertions correspond to aligned page evidence
 * page furniture is not emitted as body prose when confidently classified
 * the system can abstain on unresolved structure
@@ -318,7 +318,7 @@ MVP is complete when the acceptance criteria in `harness/project-spec/project-sp
 The minimum successful end state is:
 
 * one selected full book processes end-to-end;
-* canonical Brave wording is preserved;
+* canonical raw wording is preserved;
 * reconstructed paragraph/dialogue/heading topology is materially faithful to the scan;
 * page furniture is excluded with provenance;
 * uncertainty remains explicit;

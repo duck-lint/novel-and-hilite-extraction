@@ -7,7 +7,7 @@
 Build a local, deterministic pipeline that reconstructs useful Markdown document structure from:
 
 1. a user-owned scanned PDF, which is authoritative for page geometry and observable layout; and
-2. a flat Brave/browser-extracted text or Markdown source, which is authoritative for lexical wording unless an explicit repair is authorized.
+2. a flat raw/browser-extracted text or Markdown source, which is authoritative for lexical wording unless an explicit repair is authorized.
 
 The system MUST reunite **what the source says** with **where it appears on the page**.
 
@@ -21,11 +21,11 @@ A proof-of-concept test on an Einstein scan showed:
 
 - Tesseract transcription remained noisy and unsuitable as canonical text.
 - Tesseract layout geometry was materially better: paragraph starts were recoverable from stable first-line indentation even when OCR tokens were wrong.
-- Approximate alignment between noisy OCR tokens and Brave-extracted text is therefore a plausible bridge from page geometry back to the cleaner text stream.
+- Approximate alignment between noisy OCR tokens and raw-extracted text is therefore a plausible bridge from page geometry back to the cleaner text stream.
 
 This empirical split is the core project thesis:
 
-> **Brave/browser extraction is lexical authority; OCR is a geometry/alignment instrument.**
+> **raw/browser extraction is lexical authority; OCR is a geometry/alignment instrument.**
 
 The first implementation milestone MUST test this thesis across multiple books before any full reconstruction pipeline is built.
 
@@ -53,7 +53,7 @@ The system MUST be capable of inserting paragraph/heading boundaries into the fl
 
 The project MUST NOT, unless this specification is explicitly revised:
 
-- replace Brave/browser text with Tesseract transcription;
+- replace raw/browser text with Tesseract transcription;
 - optimize Tesseract for book-quality OCR;
 - use an LLM to freely rewrite, re-paragraph, summarize, or “clean up” source prose;
 - infer exact publisher paragraph boundaries from semantics when page geometry does not support them;
@@ -72,7 +72,7 @@ The implementation MUST obey `AUTHORITY.md`.
 At a high level:
 
 1. source scan pixels are authoritative for observable layout;
-2. Brave/browser extraction is authoritative for lexical wording;
+2. raw/browser extraction is authoritative for lexical wording;
 3. OCR text is non-authoritative and may be used only to locate/alignment-match geometry;
 4. deterministic layout heuristics may classify structure;
 5. semantic inference may only resolve explicitly ambiguous cases if later authorized;
@@ -113,7 +113,7 @@ positioned OCR tokens + line geometry
     ↓
 layout features and candidate structural boundaries
     ↓
-approximate alignment to flat Brave text
+approximate alignment to flat raw text
     ↓
 source-text span ↔ page-geometry map
     ↓
@@ -176,7 +176,7 @@ The exact schema may evolve, but these distinctions MUST remain.
 
 ### 8.1 Purpose
 
-Before building a general reconstruction engine, prove or falsify the thesis that Tesseract-derived geometry can recover useful document topology while Brave text remains lexical authority.
+Before building a general reconstruction engine, prove or falsify the thesis that Tesseract-derived geometry can recover useful document topology while raw text remains lexical authority.
 
 ### 8.2 Probe corpus
 
@@ -216,7 +216,7 @@ The probe MUST produce all of the following without modifying the source Markdow
 
 3. **Alignment report**
    - OCR span;
-   - matched Brave/source span;
+   - matched raw/source span;
    - alignment confidence;
    - unmatched/ambiguous spans.
 

@@ -17,7 +17,7 @@ Highest authority first:
    - page ordering after explicit preprocessing;
    - visible indentation, spacing, block placement, headings, page furniture, and other typography/layout evidence.
 
-2. **User-provided Brave/browser-extracted source text**
+2. **User-provided raw/browser-extracted source text**
    - authoritative for lexical wording by default;
    - preserved unchanged as the canonical textual substrate.
 
@@ -54,7 +54,7 @@ Agents MUST preserve these invariants:
 
 ### 2.1 Lexical immutability
 
-The original Brave/browser text is immutable.
+The original raw/browser text is immutable.
 
 Structural reconstruction may insert Markdown syntax or boundaries into a derived output, but MUST NOT silently alter lexical characters.
 
@@ -119,7 +119,7 @@ Agents MAY:
 Agents MUST NOT:
 
 - overwrite the user’s input PDF or raw extracted text;
-- replace Brave text with Tesseract text;
+- replace raw text with Tesseract text;
 - rewrite prose for fluency;
 - summarize or paraphrase source material;
 - infer missing paragraphs solely because prose “reads better” that way;

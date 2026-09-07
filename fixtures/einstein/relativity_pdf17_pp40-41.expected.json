@@ -1,7 +1,7 @@
 {
   "schema_version": "probe-expected-v1",
-  "review_status": "assistant_visual_pass_requires_user_confirmation",
-  "authority_note": "Expected structure is derived from visible scan layout. Text anchors are short locators into the Brave-extracted source and are not replacements for source text.",
+  "review_status": "human_review_accepted",
+  "authority_note": "Expected structure is derived from visible scan layout. Text anchors are short locators into the raw-extracted source and are not replacements for source text.",
   "fixture_id": "relativity_pdf17_pp40-41",
   "source_pdf": "Einstein, Albert - Relativity.pdf",
   "pdf_page_index_1_based": 17,
@@ -24,37 +24,38 @@
     {
       "side": "left",
       "type": "chapter_heading",
-      "scan_visible_text": "9 — The Relativity of Simultaneity",
-      "brave_anchor": "9 The Relativity of Simultaneity"
+      "scan_visible_text": "9 The Relativity of Simultaneity",
+      "raw_anchor": "9 The Relativity of Simultaneity"
     },
     {
       "side": "left",
       "type": "paragraph_start",
-      "brave_anchor": "Up to now our considerations have been referred to a particular body of reference"
+      "raw_anchor": "Up to now our considerations have been referred to a particular body of reference"
     },
     {
       "side": "left",
       "type": "figure",
       "scan_visible_label": "Fig. 1",
+      "include_in_clean_body": false,
       "interrupts_surrounding_paragraph": true,
       "note": "Figure occurs inside the paragraph begun above it; its presence must not force a new prose paragraph."
     },
     {
       "side": "left",
       "type": "paragraph_continuation",
-      "brave_anchor": "reference to the train. Then every event which takes place",
+      "raw_anchor": "reference to the train. Then every event which takes place",
       "boundary_before": false,
       "note": "Same paragraph as 'Up to now our considerations...'; resumes below Fig. 1."
     },
     {
       "side": "right",
       "type": "paragraph_start",
-      "brave_anchor": "Are two events (e.g. the two strokes of lightning A and B)"
+      "raw_anchor": "Are two events (e.g. the two strokes of lightning A and B)"
     },
     {
       "side": "right",
       "type": "paragraph_start",
-      "brave_anchor": "When we say that the lightning strokes A and B are simultaneous"
+      "raw_anchor": "When we say that the lightning strokes A and B are simultaneous"
     }
   ],
   "page_furniture": [

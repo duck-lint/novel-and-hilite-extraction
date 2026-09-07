@@ -1,7 +1,7 @@
 {
   "schema_version": "probe-expected-v1",
-  "review_status": "assistant_visual_pass_requires_user_confirmation",
-  "authority_note": "Expected structure is derived from visible scan layout. Text anchors are short locators into the Brave-extracted source and are not replacements for source text.",
+  "review_status": "human_review_accepted",
+  "authority_note": "Expected structure is derived from visible scan layout. Text anchors are short locators into the raw-extracted source and are not replacements for source text.",
   "fixture_id": "relativity_pdf23_pp52-53",
   "source_pdf": "Einstein, Albert - Relativity.pdf",
   "pdf_page_index_1_based": 23,
@@ -25,13 +25,13 @@
     {
       "side": "left",
       "type": "chapter_heading",
-      "scan_visible_text": "12 — The Behaviour of Measuring-Rods and Clocks in Motion",
-      "brave_anchor": "12 The Behaviour of Measuring-Rods and Clocks in Motion"
+      "scan_visible_text": "12 The Behaviour of Measuring-Rods and Clocks in Motion",
+      "raw_anchor": "12 The Behaviour of Measuring-Rods and Clocks in Motion"
     },
     {
       "side": "left",
       "type": "paragraph_start",
-      "brave_anchor": "Place a metre-rod in the x'-axis of K'"
+      "raw_anchor": "Place a metre-rod in the x'-axis of K'"
     },
     {
       "side": "left",
@@ -39,12 +39,13 @@
       "expected_block_count": 2,
       "surrounding_text_before": "can be shown to be",
       "surrounding_text_after": "the distance between the points being",
+      "include_in_clean_body": false,
       "note": "Two vertically separated displayed equations; neither is a prose paragraph."
     },
     {
       "side": "left",
       "type": "paragraph_continuation",
-      "brave_anchor": "the distance between the points being",
+      "raw_anchor": "the distance between the points being",
       "boundary_before": false
     },
     {
@@ -52,58 +53,62 @@
       "type": "display_math",
       "position": "top_of_page",
       "continues_from_left_page": true,
+      "include_in_clean_body": false,
       "note": "Displayed distance expression completes the prose phrase from the bottom of printed page 52."
     },
     {
       "side": "right",
       "type": "paragraph_start",
-      "brave_anchor": "But the metre-rod is moving with the velocity v relative to K"
+      "raw_anchor": "But the metre-rod is moving with the velocity v relative to K"
     },
     {
       "side": "right",
       "type": "display_math",
+      "include_in_clean_body": false,
       "note": "Displayed expression occurs within the preceding paragraph; do not turn it into a paragraph boundary."
     },
     {
       "side": "right",
       "type": "paragraph_start",
-      "brave_anchor": "The rigid rod is thus shorter when in motion"
+      "raw_anchor": "The rigid rod is thus shorter when in motion"
     },
     {
       "side": "right",
       "type": "display_math",
+      "include_in_clean_body": false,
       "note": "The '= 0' expression interrupts the paragraph."
     },
     {
       "side": "right",
       "type": "paragraph_continuation",
-      "brave_anchor": "and for still greater velocities the square-root becomes imaginary",
+      "raw_anchor": "and for still greater velocities the square-root becomes imaginary",
       "boundary_before": false
     },
     {
       "side": "right",
       "type": "paragraph_start",
-      "brave_anchor": "Of course this feature of the velocity c as a limiting velocity"
+      "raw_anchor": "Of course this feature of the velocity c as a limiting velocity"
     },
     {
       "side": "right",
       "type": "paragraph_start",
-      "brave_anchor": "If, on the contrary, we had considered a metre-rod at rest"
+      "raw_anchor": "If, on the contrary, we had considered a metre-rod at rest"
     },
     {
       "side": "right",
       "type": "display_math",
+      "include_in_clean_body": false,
       "note": "Displayed expression interrupts the preceding paragraph."
     },
     {
       "side": "right",
       "type": "paragraph_start",
-      "brave_anchor": "This is quite in accordance with the principle of relativity"
+      "raw_anchor": "This is quite in accordance with the principle of relativity"
     },
     {
       "side": "right",
       "type": "paragraph_start",
-      "brave_anchor": "A Priori it is quite clear",
+      "raw_anchor": "A Priori it is quite clear",
       "continues_beyond_fixture": true
     }
   ],

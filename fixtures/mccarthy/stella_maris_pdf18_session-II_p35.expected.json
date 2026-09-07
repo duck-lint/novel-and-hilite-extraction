@@ -1,7 +1,7 @@
 {
   "schema_version": "probe-expected-v1",
-  "review_status": "assistant_visual_pass_requires_user_confirmation",
-  "authority_note": "Expected structure is derived from visible scan layout. Text anchors are short locators into the Brave-extracted source and are not replacements for source text.",
+  "review_status": "human_review_accepted",
+  "authority_note": "Expected structure is derived from visible scan layout. Text anchors are short locators into the raw-extracted source and are not replacements for source text.",
   "fixture_id": "stella_maris_pdf18_session-II_p35",
   "source_pdf": "McCarthy, Cormac - Stella Maris.pt2.pdf",
   "pdf_page_index_1_based": 18,
@@ -12,7 +12,7 @@
   "selection_reason": [
     "session transition",
     "dense unlabelled dialogue",
-    "raw Brave reading-order anomaly for the session numeral",
+    "raw raw reading-order anomaly for the session numeral",
     "multi-line turns",
     "page number",
     "cyan highlighting"
@@ -27,8 +27,8 @@
       "type": "session_heading",
       "scan_visible_text": "II",
       "decorative_rule_below": true,
-      "brave_observation": {
-        "raw_relative_order": "The token 'II' appears after 'So what's been on your mind?' in the flat Brave extraction.",
+      "raw_observation": {
+        "raw_relative_order": "The token 'II' appears after 'So what's been on your mind?' in the flat raw extraction.",
         "expected_layout_order": "The session heading precedes 'How have you been?' and all dialogue on this spread."
       }
     },
@@ -36,277 +36,277 @@
       "side": "left",
       "type": "dialogue_turn_start",
       "turn_index_on_spread": 1,
-      "brave_anchor": "How have you been?"
+      "raw_anchor": "How have you been?"
     },
     {
       "side": "left",
       "type": "dialogue_turn_start",
       "turn_index_on_spread": 2,
-      "brave_anchor": "I'm okay."
+      "raw_anchor": "I'm okay."
     },
     {
       "side": "left",
       "type": "dialogue_turn_start",
       "turn_index_on_spread": 3,
-      "brave_anchor": "I missed you last week."
+      "raw_anchor": "I missed you last week."
     },
     {
       "side": "left",
       "type": "dialogue_turn_start",
       "turn_index_on_spread": 4,
-      "brave_anchor": "Yeah, well. You know. Busy."
+      "raw_anchor": "Yeah, well. You know. Busy."
     },
     {
       "side": "left",
       "type": "dialogue_turn_start",
       "turn_index_on_spread": 5,
-      "brave_anchor": "Busy."
+      "raw_anchor": "Busy."
     },
     {
       "side": "left",
       "type": "dialogue_turn_start",
       "turn_index_on_spread": 6,
-      "brave_anchor": "Just kidding."
+      "raw_anchor": "Just kidding."
     },
     {
       "side": "left",
       "type": "dialogue_turn_start",
       "turn_index_on_spread": 7,
-      "brave_anchor": "All right."
+      "raw_anchor": "All right."
     },
     {
       "side": "left",
       "type": "dialogue_turn_start",
       "turn_index_on_spread": 8,
-      "brave_anchor": "All right."
+      "raw_anchor": "All right."
     },
     {
       "side": "left",
       "type": "dialogue_turn_start",
       "turn_index_on_spread": 9,
-      "brave_anchor": "So what's been on your mind?"
+      "raw_anchor": "So what's been on your mind?"
     },
     {
       "side": "left",
       "type": "dialogue_turn_start",
       "turn_index_on_spread": 10,
-      "brave_anchor": "I dont know. What's your wife like?"
+      "raw_anchor": "I dont know. What's your wife like?"
     },
     {
       "side": "left",
       "type": "dialogue_turn_start",
       "turn_index_on_spread": 11,
-      "brave_anchor": "My wife."
+      "raw_anchor": "My wife."
     },
     {
       "side": "left",
       "type": "dialogue_turn_start",
       "turn_index_on_spread": 12,
-      "brave_anchor": "Yes."
+      "raw_anchor": "Yes."
     },
     {
       "side": "left",
       "type": "dialogue_turn_start",
       "turn_index_on_spread": 13,
-      "brave_anchor": "She's Italian. What's she like?"
+      "raw_anchor": "She's Italian. What's she like?"
     },
     {
       "side": "left",
       "type": "dialogue_turn_start",
       "turn_index_on_spread": 14,
-      "brave_anchor": "Yes."
+      "raw_anchor": "Yes."
     },
     {
       "side": "left",
       "type": "dialogue_turn_start",
       "turn_index_on_spread": 15,
-      "brave_anchor": "She's attractive. She likes Bach."
+      "raw_anchor": "She's attractive. She likes Bach."
     },
     {
       "side": "left",
       "type": "dialogue_turn_start",
       "turn_index_on_spread": 16,
-      "brave_anchor": "Is she a good cook?"
+      "raw_anchor": "Is she a good cook?"
     },
     {
       "side": "left",
       "type": "dialogue_turn_start",
       "turn_index_on_spread": 17,
-      "brave_anchor": "Yes."
+      "raw_anchor": "Yes."
     },
     {
       "side": "left",
       "type": "dialogue_turn_start",
       "turn_index_on_spread": 18,
-      "brave_anchor": "She's not Jewish."
+      "raw_anchor": "She's not Jewish."
     },
     {
       "side": "right",
       "type": "dialogue_turn_start",
       "turn_index_on_spread": 19,
-      "brave_anchor": "She is Jewish."
+      "raw_anchor": "She is Jewish."
     },
     {
       "side": "right",
       "type": "dialogue_turn_start",
       "turn_index_on_spread": 20,
-      "brave_anchor": "She's nice."
+      "raw_anchor": "She's nice."
     },
     {
       "side": "right",
       "type": "dialogue_turn_start",
       "turn_index_on_spread": 21,
-      "brave_anchor": "Very nice."
+      "raw_anchor": "Very nice."
     },
     {
       "side": "right",
       "type": "dialogue_turn_start",
       "turn_index_on_spread": 22,
-      "brave_anchor": "Something you're not telling me."
+      "raw_anchor": "Something you're not telling me."
     },
     {
       "side": "right",
       "type": "dialogue_turn_start",
       "turn_index_on_spread": 23,
-      "brave_anchor": "We were divorced. For three years. Then we remarried."
+      "raw_anchor": "We were divorced. For three years. Then we remarried."
     },
     {
       "side": "right",
       "type": "dialogue_turn_start",
       "turn_index_on_spread": 24,
-      "brave_anchor": "You treated her badly."
+      "raw_anchor": "You treated her badly."
     },
     {
       "side": "right",
       "type": "dialogue_turn_start",
       "turn_index_on_spread": 25,
-      "brave_anchor": "Yes. I did."
+      "raw_anchor": "Yes. I did."
     },
     {
       "side": "right",
       "type": "dialogue_turn_start",
       "turn_index_on_spread": 26,
-      "brave_anchor": "Why did you?"
+      "raw_anchor": "Why did you?"
     },
     {
       "side": "right",
       "type": "dialogue_turn_start",
       "turn_index_on_spread": 27,
-      "brave_anchor": "Because I was an idiot."
+      "raw_anchor": "Because I was an idiot."
     },
     {
       "side": "right",
       "type": "dialogue_turn_start",
       "turn_index_on_spread": 28,
-      "brave_anchor": "That's what Oppenheimer said. At the hearings."
+      "raw_anchor": "That's what Oppenheimer said. At the hearings."
     },
     {
       "side": "right",
       "type": "dialogue_turn_start",
       "turn_index_on_spread": 29,
-      "brave_anchor": "He seems a strange candidate for"
+      "raw_anchor": "He seems a strange candidate for"
     },
     {
       "side": "right",
       "type": "dialogue_turn_start",
       "turn_index_on_spread": 30,
-      "brave_anchor": "I think that's why the quote is memorable."
+      "raw_anchor": "I think that's why the quote is memorable."
     },
     {
       "side": "right",
       "type": "dialogue_turn_start",
       "turn_index_on_spread": 31,
-      "brave_anchor": "Oppenheimer."
+      "raw_anchor": "Oppenheimer."
     },
     {
       "side": "right",
       "type": "dialogue_turn_start",
       "turn_index_on_spread": 32,
-      "brave_anchor": "Yes."
+      "raw_anchor": "Yes."
     },
     {
       "side": "right",
       "type": "dialogue_turn_start",
       "turn_index_on_spread": 33,
-      "brave_anchor": "I assume your father knew him."
+      "raw_anchor": "I assume your father knew him."
     },
     {
       "side": "right",
       "type": "dialogue_turn_start",
       "turn_index_on_spread": 34,
-      "brave_anchor": "My father worked for him."
+      "raw_anchor": "My father worked for him."
     },
     {
       "side": "right",
       "type": "dialogue_turn_start",
       "turn_index_on_spread": 35,
-      "brave_anchor": "What was his opinion?"
+      "raw_anchor": "What was his opinion?"
     },
     {
       "side": "right",
       "type": "dialogue_turn_start",
       "turn_index_on_spread": 36,
-      "brave_anchor": "Of Oppenheimer."
+      "raw_anchor": "Of Oppenheimer."
     },
     {
       "side": "right",
       "type": "dialogue_turn_start",
       "turn_index_on_spread": 37,
-      "brave_anchor": "Yes."
+      "raw_anchor": "Yes."
     },
     {
       "side": "right",
       "type": "dialogue_turn_start",
       "turn_index_on_spread": 38,
-      "brave_anchor": "He found him engaging, charming, erudite."
+      "raw_anchor": "He found him engaging, charming, erudite."
     },
     {
       "side": "right",
       "type": "dialogue_turn_start",
       "turn_index_on_spread": 39,
-      "brave_anchor": "Frightening?"
+      "raw_anchor": "Frightening?"
     },
     {
       "side": "right",
       "type": "dialogue_turn_start",
       "turn_index_on_spread": 40,
-      "brave_anchor": "Yes."
+      "raw_anchor": "Yes."
     },
     {
       "side": "right",
       "type": "dialogue_turn_start",
       "turn_index_on_spread": 41,
-      "brave_anchor": "In what sense?"
+      "raw_anchor": "In what sense?"
     },
     {
       "side": "right",
       "type": "dialogue_turn_start",
       "turn_index_on_spread": 42,
-      "brave_anchor": "He thought that Oppenheimer's intelligence was not entirely contained."
+      "raw_anchor": "He thought that Oppenheimer's intelligence was not entirely contained."
     },
     {
       "side": "right",
       "type": "dialogue_turn_start",
       "turn_index_on_spread": 43,
-      "brave_anchor": "Was he?"
+      "raw_anchor": "Was he?"
     },
     {
       "side": "right",
       "type": "dialogue_turn_start",
       "turn_index_on_spread": 44,
-      "brave_anchor": "Yes."
+      "raw_anchor": "Yes."
     },
     {
       "side": "right",
       "type": "dialogue_turn_start",
       "turn_index_on_spread": 45,
-      "brave_anchor": "But not Satanic."
+      "raw_anchor": "But not Satanic."
     },
     {
       "side": "right",
       "type": "dialogue_turn_start",
       "turn_index_on_spread": 46,
-      "brave_anchor": "That would be a stretch."
+      "raw_anchor": "That would be a stretch."
     }
   ],
   "expected_dialogue_turn_count": 46,
@@ -325,7 +325,7 @@
     }
   ],
   "critical_assertions": [
-    "The session heading II is structurally first even though Brave places its token later in the flattened text.",
+    "The session heading II is structurally first even though raw places its token later in the flattened text.",
     "Every listed turn is a distinct typographic dialogue block.",
     "Wrapped turns remain single dialogue blocks.",
     "The page number is not dialogue."

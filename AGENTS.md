@@ -2,13 +2,13 @@
 
 ## Project
 
-Normalization reconstructs document structure in flat browser-extracted book text by aligning it to observable layout in the user's scanned PDF pages.
+Normalize reconstructs document structure in flat browser-extracted book text by aligning it to observable layout in the user's scanned PDF pages.
 
 It is not a general OCR engine and it does not replace source wording.
 
 Primary project relation:
 
-`scan pixels + Brave text → layout geometry → approximate alignment → structural reconstruction → derived Markdown`
+`scan pixels + raw text → layout geometry → approximate alignment → structural reconstruction → derived Markdown`
 
 ## Project Authority
 
@@ -31,7 +31,7 @@ Existing implementation does not override the harness.
 ## Core Authority Split
 
 * scanned page pixels are authoritative for **observable layout**;
-* Brave/browser-extracted text is authoritative for **lexical wording**;
+* raw/browser-extracted text is authoritative for **lexical wording**;
 * OCR text is **non-authoritative** and may be used only as a locating/alignment instrument;
 * derived Markdown is a reconstruction artifact, never source authority;
 * uncertainty must remain explicit when authorized evidence is insufficient.
@@ -40,4 +40,4 @@ Existing implementation does not override the harness.
 
 Do not improve OCR transcription as a substitute for the project goal.
 
-The project succeeds by recovering topology from page geometry and mapping it onto the canonical Brave text.
+The project succeeds by recovering topology from page geometry and mapping it onto the canonical raw text.

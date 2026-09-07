@@ -1,7 +1,7 @@
 {
   "schema_version": "probe-expected-v1",
-  "review_status": "assistant_visual_pass_requires_user_confirmation",
-  "authority_note": "Expected structure is derived from visible scan layout. Text anchors are short locators into the Brave-extracted source and are not replacements for source text.",
+  "review_status": "human_review_accepted",
+  "authority_note": "Expected structure is derived from visible scan layout. Text anchors are short locators into the raw-extracted source and are not replacements for source text.",
   "fixture_id": "relativity_pdf10_pp26-27",
   "source_pdf": "Einstein, Albert - Relativity.pdf",
   "pdf_page_index_1_based": 10,
@@ -25,42 +25,42 @@
     {
       "side": "left",
       "type": "chapter_heading",
-      "scan_visible_text": "5 — The Principle of Relativity (In the Restricted Sense)",
-      "brave_anchor": "5 The Principle of Relativity (In the Restricted Sense)"
+      "scan_visible_text": "5 The Principle of Relativity (In the Restricted Sense)",
+      "raw_anchor": "5 The Principle of Relativity (In the Restricted Sense)"
     },
     {
       "side": "left",
       "type": "paragraph_start",
-      "brave_anchor": "In order to attain the greatest possible clearness",
+      "raw_anchor": "In order to attain the greatest possible clearness",
       "continues_across_spread": true
     },
     {
       "side": "right",
       "type": "paragraph_continuation",
-      "brave_anchor": "K. In accordance with the discussion contained in the preceding section",
+      "raw_anchor": "K. In accordance with the discussion contained in the preceding section",
       "boundary_before": false,
       "note": "Continuation of the paragraph begun on printed page 26."
     },
     {
       "side": "right",
       "type": "paragraph_start",
-      "brave_anchor": "If Kis a Galileian co-ordinate system",
-      "note": "Brave source has 'Kis' merged; do not repair lexically during structural reconstruction."
+      "raw_anchor": "If Kis a Galileian co-ordinate system",
+      "note": "raw source has 'Kis' merged; do not repair lexically during structural reconstruction."
     },
     {
       "side": "right",
       "type": "paragraph_start",
-      "brave_anchor": "We advance a step farther in our generalisation"
+      "raw_anchor": "We advance a step farther in our generalisation"
     },
     {
       "side": "right",
       "type": "paragraph_start",
-      "brave_anchor": "As long as one was convinced"
+      "raw_anchor": "As long as one was convinced"
     },
     {
       "side": "right",
       "type": "paragraph_start",
-      "brave_anchor": "Nevertheless, there are two general facts"
+      "raw_anchor": "Nevertheless, there are two general facts"
     }
   ],
   "page_furniture": [
